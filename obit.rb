@@ -2,7 +2,7 @@ require 'formula'
 
 class Obit < Formula
   homepage 'http://www.cv.nrao.edu/~bcotton/Obit.html'
-  head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem/Obit'
+  head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem'
 
   depends_on 'autoconf' => :build
   depends_on 'automake' => :build
@@ -34,6 +34,9 @@ class Obit < Formula
   def install
     ENV.deparallelize
     ENV.fortran
+
+    # Build and install main Obit package
+    Dir.chdir 'Obit'
     system 'aclocal -I m4; autoconf'
     system './configure'
     system 'make'
@@ -60,10 +63,10 @@ class Obit < Formula
 end
 
 __END__
-diff --git a/include/ObitThread.h b/include/ObitThread.h
+diff --git a/Obit/include/ObitThread.h b/Obit/include/ObitThread.h
 index 2be8bf2..68ca14a 100644
---- a/include/ObitThread.h
-+++ b/include/ObitThread.h
+--- a/Obit/include/ObitThread.h
++++ b/Obit/include/ObitThread.h
 @@ -29,7 +29,6 @@
  #include "ObitErr.h"
  #include "ObitInfoList.h"
@@ -72,10 +75,10 @@ index 2be8bf2..68ca14a 100644
  
  /**
   * \file ObitThread.h
-diff --git a/m4/plplot.m4 b/m4/plplot.m4
+diff --git a/Obit/m4/plplot.m4 b/Obit/m4/plplot.m4
 index 9dbca3f..12d8a67 100644
---- a/m4/plplot.m4
-+++ b/m4/plplot.m4
+--- a/Obit/m4/plplot.m4
++++ b/Obit/m4/plplot.m4
 @@ -15,10 +15,13 @@ ac_plplot_saved_CPPFLAGS="$CPPFLAGS"
  ac_plplot_saved_CFLAGS="$CFLAGS"
  ac_plplot_saved_LDFLAGS="$LDFLAGS"
@@ -120,10 +123,10 @@ index 9dbca3f..12d8a67 100644
  LIBS="$ac_plplot_saved_LIBS"
  	 AC_SUBST(PLPLOT_CPPFLAGS)
  	 AC_SUBST(PLPLOT_CFLAGS)
-diff --git a/m4/python.m4 b/m4/python.m4
+diff --git a/Obit/m4/python.m4 b/Obit/m4/python.m4
 index e729417..728ee71 100644
---- a/m4/python.m4
-+++ b/m4/python.m4
+--- a/Obit/m4/python.m4
++++ b/Obit/m4/python.m4
 @@ -26,7 +26,7 @@ AC_DEFUN([AC_PATH_PYTHON2_5], [
  # Includes
  if test "x$PYTHON_CPPFLAGS" = x; then
@@ -142,10 +145,10 @@ index e729417..728ee71 100644
      fi
  cat <<_ACEOF >conftest.py
  import distutils.sysconfig
-diff --git a/m4/wvr.m4 b/m4/wvr.m4
+diff --git a/Obit/m4/wvr.m4 b/Obit/m4/wvr.m4
 index 57a2832..326e60e 100644
---- a/m4/wvr.m4
-+++ b/m4/wvr.m4
+--- a/Obit/m4/wvr.m4
++++ b/Obit/m4/wvr.m4
 @@ -23,21 +23,22 @@ AC_DEFUN([AC_PATH_WVR], [
      fi
    done[]])
@@ -191,10 +194,10 @@ index 57a2832..326e60e 100644
  			rm /tmp/dummy3_wvr.h
  			if test $ac_have_wvrh = yes; then
  				# Force check
-diff --git a/src/ObitSDMData.c b/src/ObitSDMData.c
+diff --git a/Obit/src/ObitSDMData.c b/Obit/src/ObitSDMData.c
 index 88c3b65..df3cb64 100644
---- a/src/ObitSDMData.c
-+++ b/src/ObitSDMData.c
+--- a/Obit/src/ObitSDMData.c
++++ b/Obit/src/ObitSDMData.c
 @@ -65,7 +65,6 @@ X    Weather.xml
  #include "ObitSDMData.h"
  #include "ObitEVLASysPower.h"
@@ -203,10 +206,10 @@ index 88c3b65..df3cb64 100644
  
  /*----------------Obit: Merx mollis mortibus nuper ------------------*/
  /**
-diff --git a/src/ObitTableUtil.c b/src/ObitTableUtil.c
+diff --git a/Obit/src/ObitTableUtil.c b/Obit/src/ObitTableUtil.c
 index 12ff756..e542569 100644
---- a/src/ObitTableUtil.c
-+++ b/src/ObitTableUtil.c
+--- a/Obit/src/ObitTableUtil.c
++++ b/Obit/src/ObitTableUtil.c
 @@ -28,7 +28,6 @@
  
  #include <math.h>
@@ -215,10 +218,10 @@ index 12ff756..e542569 100644
  #include "ObitTableUtil.h"
  #include "ObitImage.h"
  #include "ObitInfoElem.h"
-diff --git a/tasks/WVRCal.c b/tasks/WVRCal.c
+diff --git a/Obit/tasks/WVRCal.c b/Obit/tasks/WVRCal.c
 index 582f1e9..bcbf64f 100644
---- a/tasks/WVRCal.c
-+++ b/tasks/WVRCal.c
+--- a/Obit/tasks/WVRCal.c
++++ b/Obit/tasks/WVRCal.c
 @@ -45,7 +45,7 @@
  #include "ObitThread.h"
  /* libAir stuff */
@@ -228,10 +231,10 @@ index 582f1e9..bcbf64f 100644
  #endif /* HAVE_WVR */
    /* Speed of light */
  #ifndef VELIGHT
-diff --git a/src/ObitTableCCUtil.c b/src/ObitTableCCUtil.c
+diff --git a/Obit/src/ObitTableCCUtil.c b/Obit/src/ObitTableCCUtil.c
 index 72e34f2..695f264 100644
---- a/src/ObitTableCCUtil.c
-+++ b/src/ObitTableCCUtil.c
+--- a/Obit/src/ObitTableCCUtil.c
++++ b/Obit/src/ObitTableCCUtil.c
 @@ -26,7 +26,6 @@
  /*;                         Charlottesville, VA 22903-2475 USA        */
  /*--------------------------------------------------------------------*/
@@ -240,10 +243,10 @@ index 72e34f2..695f264 100644
  #include "ObitTableCCUtil.h"
  #include "ObitMem.h"
  #include "ObitBeamShape.h"
-diff --git a/src/ObitUVSortBuffer.c b/src/ObitUVSortBuffer.c
+diff --git a/Obit/src/ObitUVSortBuffer.c b/Obit/src/ObitUVSortBuffer.c
 index 584da07..dc0db38 100644
---- a/src/ObitUVSortBuffer.c
-+++ b/src/ObitUVSortBuffer.c
+--- a/Obit/src/ObitUVSortBuffer.c
++++ b/Obit/src/ObitUVSortBuffer.c
 @@ -29,7 +29,6 @@
  #include "ObitUVSortBuffer.h"
  #include <math.h>
@@ -252,10 +255,10 @@ index 584da07..dc0db38 100644
  
  /*----------------Obit: Merx mollis mortibus nuper ------------------*/
  /**
-diff --git a/python/Obit_wrap.c b/python/Obit_wrap.c
+diff --git a/Obit/python/Obit_wrap.c b/Obit/python/Obit_wrap.c
 index 519bbec..68c8607 100644
---- a/python/Obit_wrap.c
-+++ b/python/Obit_wrap.c
+--- a/Obit/python/Obit_wrap.c
++++ b/Obit/python/Obit_wrap.c
 @@ -7827,7 +7827,7 @@ extern ObitTableDesc* TableDescDef(PyObject *inDict) {
    repeat = PyDict_GetItemString(inDict, "repeat");
    if (!repeat) {
@@ -274,10 +277,10 @@ index 519bbec..68c8607 100644
           }
        } else {
           PyErr_SetString(PyExc_TypeError,"list must contain Strings (ObitImage pointers)");
-diff --git a/lib/Makefile b/lib/Makefile
+diff --git a/Obit/lib/Makefile b/Obit/lib/Makefile
 index 40d2e7d..f8e4248 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
+--- a/Obit/lib/Makefile
++++ b/Obit/lib/Makefile
 @@ -34,18 +34,22 @@
  #
  #------------------------------------------------------------------------
@@ -303,10 +306,10 @@ index 40d2e7d..f8e4248 100644
  clean:
  	rm -f $(TARGETS)
  
-diff --git a/tasks/Makefile.in b/tasks/Makefile.in
+diff --git a/Obit/tasks/Makefile.in b/Obit/tasks/Makefile.in
 index 798645f..be4db7d 100644
---- a/tasks/Makefile.in
-+++ b/tasks/Makefile.in
+--- a/Obit/tasks/Makefile.in
++++ b/Obit/tasks/Makefile.in
 @@ -63,10 +63,16 @@ ALL_LDFLAGS = $(LDFLAGS) @CFITSIO_LDFLAGS@ @FFTW_LDFLAGS@  @FFTW3_LDFLAGS@  \
  	 @GSL_LDFLAGS@ @PLPLOT_LDFLAGS@ @PGPLOT_LDFLAGS@ @WVR_LDFLAGS@ \
  	$(CLIENT_LDFLAGS) $(SERVER_LDFLAGS)
@@ -348,10 +351,10 @@ index 798645f..be4db7d 100644
  	rm -f *.o
 +	rm -rf *.dSYM
  
-diff --git a/python/Makefile.in b/python/Makefile.in
+diff --git a/Obit/python/Makefile.in b/Obit/python/Makefile.in
 index 5cf25a4..5dac1d6 100644
---- a/python/Makefile.in
-+++ b/python/Makefile.in
+--- a/Obit/python/Makefile.in
++++ b/Obit/python/Makefile.in
 @@ -54,7 +54,12 @@ ALL_CFLAGS = $(CFLAGS) @GLIB_CFLAGS@ @GSL_CFLAGS@ @PLPLOT_CFLAGS@ \
  ALL_LDFLAGS = $(LDFLAGS) @CFITSIO_LDFLAGS@ @FFTW_LDFLAGS@  @FFTW3_LDFLAGS@  @GSL_LDFLAGS@ \
  	@PLPLOT_LDFLAGS@ @PGPLOT_LDFLAGS@ @PYTHON_LDFLAGS@ 
@@ -394,10 +397,10 @@ index 5cf25a4..5dac1d6 100644
  # Build python/Obit interface
  interface: Obit_wrap.c
  	echo "rebuild Obit/python interface"
-diff --git a/Makefile.in b/Makefile.in
+diff --git a/Obit/Makefile.in b/Obit/Makefile.in
 index b76a1a4..d2667ac 100644
---- a/Makefile.in
-+++ b/Makefile.in
+--- a/Obit/Makefile.in
++++ b/Obit/Makefile.in
 @@ -87,7 +87,7 @@ srcupdate:
  
  # update library directory
@@ -407,10 +410,10 @@ index b76a1a4..d2667ac 100644
  
  # update test software directory
  testupdate: 
-diff --git a/src/Makefile.in b/src/Makefile.in
+diff --git a/Obit/src/Makefile.in b/Obit/src/Makefile.in
 index 547ddc1..e8c56f1 100644
---- a/src/Makefile.in
-+++ b/src/Makefile.in
+--- a/Obit/src/Makefile.in
++++ b/Obit/src/Makefile.in
 @@ -53,7 +53,7 @@ ALL_CFLAGS = $(CFLAGS) @GSL_CFLAGS@ @GLIB_CFLAGS@ @PLPLOT_CFLAGS@ \
  	mv $@.o $(LIBDIR)
  
