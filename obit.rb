@@ -38,11 +38,14 @@ class Obit < Formula
     system './configure'
     system 'make'
     # Since Obit does not do its own 'make install', we have to do it ourselves
+    system 'rm -f bin/.cvsignore include/.cvsignore'
     prefix.install 'bin'
     prefix.install 'include'
     lib.install 'lib/libObit.dylib'
     system "mkdir", "-p", "#{lib}/#{which_python}/site-packages"
     system "cp", "-R", "python/build/site-packages", "#{lib}/#{which_python}/"
+    system "mkdir", "-p", "#{share}/#{name}"
+    system "cp", "-R", "share/data", "share/scripts", "#{share}/#{name}"
   end
 
   def caveats; <<-EOS.undent
