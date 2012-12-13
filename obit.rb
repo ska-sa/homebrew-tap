@@ -28,6 +28,7 @@ class Obit < Formula
     # Build main Obit library as shared dylib
     # Improve installation procedure for Python module
     # Remove unused AIPS objects that introduce undefined symbols
+    # Make creation of doc directory idempotent
     DATA
   end
 
@@ -45,10 +46,21 @@ class Obit < Formula
     prefix.install 'bin'
     prefix.install 'include'
     lib.install 'lib/libObit.dylib'
-    system "mkdir", "-p", "#{lib}/#{which_python}/site-packages"
-    system "cp", "-R", "python/build/site-packages", "#{lib}/#{which_python}/"
-    system "mkdir", "-p", "#{share}/#{name}"
-    system "cp", "-R", "share/data", "share/scripts", "#{share}/#{name}"
+    system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
+    system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
+    system 'mkdir', '-p', "#{share}/obit"
+    system 'cp', '-R', 'share/data', 'share/scripts', "#{share}/obit"
+
+    # Build and install ObitTalk package
+    Dir.chdir '../ObitTalk'
+    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
+    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
+    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{which_python}/site-packages"
+    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
+    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
+    inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
+    system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}"
+    system 'make && make install'
   end
 
   def caveats; <<-EOS.undent
@@ -423,4 +435,17 @@ index 547ddc1..e8c56f1 100644
  OBJECTS := $(patsubst %.c,%.o, $(AllC))
  
  CTARGETS := $(addprefix $(LIBDIR),$(OBJECTS))
+diff --git a/ObitTalk/doc/Makefile.in b/ObitTalk/doc/Makefile.in
+index 7426d1d..79501bc 100644
+--- a/ObitTalk/doc/Makefile.in
++++ b/ObitTalk/doc/Makefile.in
+@@ -44,7 +44,7 @@ install: $(DOCDIR)
+ 	cp *.pdf $(DOCDIR)
  
+ $(DOCDIR):
+-	mkdir $(DOCDIR)
++	mkdir -p $(DOCDIR)
+ 
+ 
+ # clean up derived files
+
