@@ -42,7 +42,7 @@ class Obit < Formula
     # Build and install main Obit package
     Dir.chdir 'Obit'
     system 'aclocal -I m4; autoconf'
-    system './configure'
+    system './configure', "--prefix=#{prefix}"
     system 'make'
     # Since Obit does not do its own 'make install', we have to do it ourselves
     system 'rm -f bin/.cvsignore include/.cvsignore'
@@ -62,13 +62,15 @@ class Obit < Formula
     inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
     inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
     inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
-    system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}"
-    system 'make && make install'
+    system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
+           "--prefix=#{prefix}"
+    system 'make'
+    system 'make', 'install', "prefix=#{prefix}"
 
     # Build and install ObitView package
     Dir.chdir '../ObitView'
     system 'aclocal -I m4; autoconf'
-    system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}"
+    system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
   end
@@ -445,6 +447,21 @@ index 547ddc1..e8c56f1 100644
  OBJECTS := $(patsubst %.c,%.o, $(AllC))
  
  CTARGETS := $(addprefix $(LIBDIR),$(OBJECTS))
+diff --git a/ObitTalk/python/Makefile.in b/ObitTalk/python/Makefile.in
+index d2a2b26..e479a41 100644
+--- a/ObitTalk/python/Makefile.in
++++ b/ObitTalk/python/Makefile.in
+@@ -76,8 +76,8 @@ PROXYTAR:= $(DESTDIR)$(PYTHONDIR)/Proxy/AIPSData.py \
+ WIZTAR:= $(DESTDIR)$(PYTHONDIR)/Wizardry/AIPSData.py \
+ 	$(DESTDIR)$(PYTHONDIR)/Wizardry/__init__.py
+ 
+-# make all = directories
+-all:  $(DESTDIR)$(PREFIX)/share $(DESTDIR)$(PREFIX)/share/obittalk 
++all:
++	echo "Nothing to make."
+ 
+ install: $(PYTHONTAR) $(PROXYTAR) $(WIZTAR)
+ 
 diff --git a/ObitTalk/doc/Makefile.in b/ObitTalk/doc/Makefile.in
 index 7426d1d..79501bc 100644
 --- a/ObitTalk/doc/Makefile.in
