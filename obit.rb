@@ -52,7 +52,7 @@ class Obit < Formula
     system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
     system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
     system 'mkdir', '-p', "#{share}/obit"
-    system 'cp', '-R', 'share/data', 'share/scripts', "#{share}/obit"
+    system 'cp', '-R', 'share/data', 'share/scripts', 'TDF', "#{share}/obit"
 
     # Build and install ObitTalk package
     Dir.chdir '../ObitTalk'
@@ -61,6 +61,8 @@ class Obit < Formula
     inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{which_python}/site-packages"
     inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
     inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
+    inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/tdf', "#{share}/obit/TDF"
+    inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/bin', "#{bin}"
     inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
     system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
            "--prefix=#{prefix}"
