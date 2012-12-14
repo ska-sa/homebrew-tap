@@ -13,7 +13,8 @@ class Obit < Formula
   depends_on 'glib'
   depends_on 'fftw'
   depends_on 'gsl'
-  depends_on 'openmotif'
+  depends_on 'lesstif'
+#  depends_on 'openmotif'
 #  depends_on 'libwww'
   depends_on 'xmlrpc-c'
   depends_on 'boost'
@@ -29,6 +30,8 @@ class Obit < Formula
     # Improve installation procedure for Python module
     # Remove unused AIPS objects that introduce undefined symbols
     # Make creation of doc directory idempotent
+    # Fix detection of XMLRPC libs in ObitView obit.m4 test
+    # Add plplot library to ObitView executable
     DATA
   end
 
@@ -61,6 +64,13 @@ class Obit < Formula
     inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
     system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}"
     system 'make && make install'
+
+    # Build and install ObitView package
+    Dir.chdir '../ObitView'
+    system 'aclocal -I m4; autoconf'
+    system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}"
+    system 'make'
+    system 'make', 'install', "prefix=#{prefix}"
   end
 
   def caveats; <<-EOS.undent
@@ -448,4 +458,104 @@ index 7426d1d..79501bc 100644
  
  
  # clean up derived files
+diff --git a/ObitView/m4/plplot.m4 b/ObitView/m4/plplot.m4
+index 9dbca3f..12d8a67 100644
+--- a/ObitView/m4/plplot.m4
++++ b/ObitView/m4/plplot.m4
+@@ -15,10 +15,13 @@ ac_plplot_saved_CPPFLAGS="$CPPFLAGS"
+ ac_plplot_saved_CFLAGS="$CFLAGS"
+ ac_plplot_saved_LDFLAGS="$LDFLAGS"
+ ac_plplot_saved_LIBS="$LIBS"
+-if ! test PLPLOT_CFLAGS; then
+-    PLPLOT_CFLAGS="`plplot-config --cflags`"
++if test "x$PLPLOT_CFLAGS" = x; then
++    PLPLOT_CFLAGS="`pkg-config plplotd --cflags`"
+ fi
+-PLPLOT_LIBS="`plplot-config --libs`"
++if test "x$PLPLOT_CPPFLAGS" = x; then
++    PLPLOT_CPPFLAGS="`pkg-config plplotd-c++ --cflags`"
++fi
++PLPLOT_LIBS="`pkg-config plplotd --libs`"
+ CPPFLAGS="$CPPFLAGS $PLPLOT_CPPFLAGS"
+ CFLAGS="$CFLAGS $PLPLOT_CFLAGS"
+ LDFLAGS="$LDFLAGS $PLPLOT_LDFLAGS"
+@@ -31,7 +34,7 @@ ac_have_plploth=no
+ 	[#include "plplot.h"])
+ 	rm /tmp/dummy1_plplot.h
+  	if test $ac_have_plploth = yes; then
+-		AC_CHECK_LIB(plplot, c_plinit, [ac_have_plplot=yes], [ac_have_plplot=no])
++		AC_CHECK_LIB(plplotd, c_plinit, [ac_have_plplot=yes], [ac_have_plplot=no])
+ 	fi
+ # List of places to try
+ testdirs="$HOME/opt/plplot $OBITINSTALL/other"
+@@ -61,7 +64,7 @@ for dir in $testdirs; do
+ 		fi
+ 	fi
+ done[]
+-PLPLOT_LIBS="-lplplot $PLPLOT_LIBS"
++PLPLOT_LIBS="-lplplotd $PLPLOT_LIBS"
+ if test $ac_have_plploth = no; then
+ 	AC_MSG_WARN([cannot find PLPLOT headers])
+ 	ac_have_plplot=no
+@@ -78,7 +81,7 @@ if test $ac_have_plplot = yes; then
+ fi
+ CPPFLAGS="$ac_plplot_saved_CPPFLAGS"
+ CFLAGS="$ac_plplot_saved_CFLAGS"
+-LDFLAGS="$LDFLAGS $PLPLOT_LDFLAGS"
++LDFLAGS="$ac_plplot_saved_LDFLAGS"
+ LIBS="$ac_plplot_saved_LIBS"
+ 	 AC_SUBST(PLPLOT_CPPFLAGS)
+ 	 AC_SUBST(PLPLOT_CFLAGS)
+diff --git a/ObitView/m4/obit.m4 b/ObitView/m4/obit.m4
+index 9e141d9..c2ac834 100644
+--- a/ObitView/m4/obit.m4
++++ b/ObitView/m4/obit.m4
+@@ -1,7 +1,7 @@
+ # Find Obit libraries
+ AC_DEFUN([AC_PATH_OBIT], [
+-XMLRPC_LIBS="$XMLRPC_LIBS $GSL_LIBS $FFTW3_LIBS -lxmlrpc_abyss -lxmlrpc_client -lxmlrpc_server_abyss -lxmlrpc_server_cgi -lxmlrpc_server -lxmlrpc -lxmlrpc_util -lxmlrpc_xmlparse -lxmlrpc_xmltok"
+-LIBS="$LIBS $XMLRPC_LIBS -lm -lcfitsio"
++XMLRPC_LIBS="$XMLRPC_LIBS `xmlrpc-c-config client --libs` `xmlrpc-c-config abyss-server --libs`  "
++LIBS="$LIBS $XMLRPC_LIBS $GSL_LIBS $FFTW3_LIBS -lm -lcfitsio"
+ 
+ # Default root of Obit directory is $OBIT
+ 	OBIT_DIR="$OBIT"
+diff --git a/ObitView/Makefile.in b/ObitView/Makefile.in
+index e922a5f..450e99c 100644
+--- a/ObitView/Makefile.in
++++ b/ObitView/Makefile.in
+@@ -62,25 +62,25 @@ OBIT = @OBIT@
+ CC = @CC@
+ 
+ SERVER_CPPFLAGS = $(CPPFLAGS) -I$(top_srcdir)/include @CFITSIO_CPPFLAGS@ \
+-        @MOTIF_CPPFLAGS@ @FFTW_CPPFLAGS@ @FFTW3_CPPFLAGS@ @OBIT_CPPFLAGS@ \
++        @MOTIF_CPPFLAGS@ @PLPLOT_CPPFLAGS@ @FFTW_CPPFLAGS@ @FFTW3_CPPFLAGS@ @OBIT_CPPFLAGS@ \
+         @XMLRPC_SERVER_CPPFLAGS@ @DEFS@
+-SERVER_CFLAGS = $(CFLAGS) @X_CFLAGS@ @GLIB_CFLAGS@ @GSL_CFLAGS@ @ZLIB_CFLAGS@
++SERVER_CFLAGS = $(CFLAGS) @X_CFLAGS@ @PLPLOT_CFLAGS@ @GLIB_CFLAGS@ @GSL_CFLAGS@ @ZLIB_CFLAGS@
+ SERVER_LDFLAGS = $(LDFLAGS) @OBIT_LDFLAGS@ @CFITSIO_LDFLAGS@ @FFTW_LDFLAGS@ @FFTW3_LDFLAGS@ \
+-        @GSL_LDFLAGS@ @ZLIB_LDFLAGS@ @MOTIF_LDFLAGS@ @XMLRPC_SERVER_LDFLAGS@
++        @PLPLOT_LDFLAGS@ @GSL_LDFLAGS@ @ZLIB_LDFLAGS@ @MOTIF_LDFLAGS@ @XMLRPC_SERVER_LDFLAGS@
+ 
+ SERVER_LIBS = lib/libObitView.a @MOTIF_LIBS@ @X_LIBS@ @OBIT_LIBS@ @GLIB_LIBS@ \
+-        @CFITSIO_LIBS@ @FFTW_LIBS@ @FFTW3_LIBS@ @XMLRPC_LIBS@ @X_PRE_LIBS@ \
++        @PLPLOT_LIBS@ @CFITSIO_LIBS@ @FFTW_LIBS@ @FFTW3_LIBS@ @XMLRPC_LIBS@ @X_PRE_LIBS@ \
+         @GSL_LIBS@ @ZLIB_LIBS@  @XMLRPC_SERVER_LIBS@ @GTHREAD_LIBS@
+ 
+ CLIENT_CPPFLAGS = $(CPPFLAGS) -I$(top_srcdir)/include @CFITSIO_CPPFLAGS@ \
+-        @MOTIF_CPPFLAGS@ @FFTW_CPPFLAGS@ @FFTW3_CPPFLAGS@ @OBIT_CPPFLAGS@ \
++        @MOTIF_CPPFLAGS@ @PLPLOT_CPPFLAGS@ @FFTW_CPPFLAGS@ @FFTW3_CPPFLAGS@ @OBIT_CPPFLAGS@ \
+         @XMLRPC_CLIENT_CPPFLAGS@ @DEFS@
+-CLIENT_CFLAGS = $(CFLAGS) @X_CFLAGS@ @GLIB_CFLAGS@ @GSL_CFLAGS@ @ZLIB_CFLAGS@
++CLIENT_CFLAGS = $(CFLAGS) @X_CFLAGS@ @PLPLOT_CFLAGS@ @GLIB_CFLAGS@ @GSL_CFLAGS@ @ZLIB_CFLAGS@
+ CLIENT_LDFLAGS = $(LDFLAGS) @OBIT_LDFLAGS@ @CFITSIO_LDFLAGS@ @FFTW_LDFLAGS@ @FFTW3_LDFLAGS@ \
+-        @GSL_LDFLAGS@ @ZLIB_LDFLAGS@ @MOTIF_LDFLAGS@ @XMLRPC_CLIENT_LDFLAGS@
++        @PLPLOT_LDFLAGS@ @GSL_LDFLAGS@ @ZLIB_LDFLAGS@ @MOTIF_LDFLAGS@ @XMLRPC_CLIENT_LDFLAGS@
+ 
+ CLIENT_LIBS = lib/libObitView.a @MOTIF_LIBS@ @X_LIBS@ @OBIT_LIBS@  @GLIB_LIBS@ \
+-        @CFITSIO_LIBS@ @FFTW_LIBS@ @FFTW3_LIBS@ @XMLRPC_LIBS@ @X_PRE_LIBS@ \
++        @PLPLOT_LIBS@ @CFITSIO_LIBS@ @FFTW_LIBS@ @FFTW3_LIBS@ @XMLRPC_LIBS@ @X_PRE_LIBS@ \
+         @GSL_LIBS@ @ZLIB_LIBS@  \
+         @XMLRPC_CLIENT_LIBS@ -lpthread @GTHREAD_LIBS@
+ 
 
