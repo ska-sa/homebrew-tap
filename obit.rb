@@ -14,8 +14,6 @@ class Obit < Formula
   depends_on 'fftw'
   depends_on 'gsl'
   depends_on 'lesstif'
-#  depends_on 'openmotif'
-#  depends_on 'libwww'
   depends_on 'xmlrpc-c'
   depends_on 'boost'
   depends_on 'libair'
@@ -44,11 +42,12 @@ class Obit < Formula
     system 'aclocal -I m4; autoconf'
     system './configure', "--prefix=#{prefix}"
     system 'make'
+    system 'dsymutil lib/libObit.dylib'
     # Since Obit does not do its own 'make install', we have to do it ourselves
     system 'rm -f bin/.cvsignore include/.cvsignore'
     prefix.install 'bin'
     prefix.install 'include'
-    lib.install 'lib/libObit.dylib'
+    lib.install 'lib/libObit.dylib', 'lib/libObit.dylib.dSYM'
     system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
     system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
     system 'mkdir', '-p', "#{share}/obit"
