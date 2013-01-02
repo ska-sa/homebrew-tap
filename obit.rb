@@ -34,6 +34,7 @@ class Obit < Formula
     # Make creation of doc directory idempotent
     # Fix detection of XMLRPC libs in ObitView obit.m4 test
     # Add plplot library to ObitView executable
+    # Fix bus error that manifested in BPass by adding index check
     DATA
   end
 
@@ -580,4 +581,25 @@ index e922a5f..450e99c 100644
          @GSL_LIBS@ @ZLIB_LIBS@  \
          @XMLRPC_CLIENT_LIBS@ -lpthread @GTHREAD_LIBS@
  
+diff --git a/Obit/src/ObitTableCLUtil.c b/Obit/src/ObitTableCLUtil.c
+index 5ddb846..d73a88e 100644
+--- a/Obit/src/ObitTableCLUtil.c
++++ b/Obit/src/ObitTableCLUtil.c
+@@ -452,14 +452,14 @@ ObitTableCL* ObitTableCLGetDummy (ObitUV *inUV, ObitUV *outUV, olong ver,
+ 	      /* Values for start of next scan */
+ 	      row->Time   = rec[inUV->myDesc->iloct]; 
+ 	      row->TimeI  = 0.0;
+-	      row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
++	      if (inUV->myDesc->ilocsu>=0) row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
+ 	      row->SubA   = SubA;
+ 	    } /* end write beginning of scan value */
+ 	  } else {  /* in middle of scan - use average time */
+ 	    /* Set descriptive info on Row */
+ 	    row->Time  = sumTime/nTime;  /* time */
+ 	    row->TimeI = MAX (0.0, (2.0 * (row->Time - t0)));
+-	    row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
++	    if (inUV->myDesc->ilocsu>=0) row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
+ 	    row->SubA   = SubA;
+ 	  }
+       
 
