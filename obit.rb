@@ -4,6 +4,10 @@ class Obit < Formula
   homepage 'http://www.cv.nrao.edu/~bcotton/Obit.html'
   head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem'
 
+  # We need to find the MacTeX executables in order to build the Obit
+  # user manuals and they are not in the Homebrew restricted path
+  env :userpaths
+
   depends_on 'autoconf' => :build
   depends_on 'automake' => :build
   depends_on 'pkg-config' => :build
