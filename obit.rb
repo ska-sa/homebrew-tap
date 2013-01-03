@@ -1,8 +1,16 @@
 require 'formula'
 
+class ObitDownloadStrategy < SubversionDownloadStrategy
+  def stage
+    # Bake SVN revision into ObitVersion.c before staging/exporting the Obit tarball without commit history
+    safe_system 'python', cached_location+'Obit/share/scripts/getVersion.py', cached_location+'Obit'
+    super
+  end
+end
+
 class Obit < Formula
   homepage 'http://www.cv.nrao.edu/~bcotton/Obit.html'
-  head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem'
+  head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem', :using => ObitDownloadStrategy
 
   # We need to find the MacTeX executables in order to build the Obit
   # user manuals and they are not in the Homebrew restricted path
@@ -35,6 +43,7 @@ class Obit < Formula
     # Fix detection of XMLRPC libs in ObitView obit.m4 test
     # Add plplot library to ObitView executable
     # Fix bus error that manifested in BPass by adding index check
+    # Don't update version in install as it is done as part of staging now
     DATA
   end
 
@@ -602,4 +611,17 @@ index 5ddb846..d73a88e 100644
  	    row->SubA   = SubA;
  	  }
        
+diff --git a/Obit/Makefile.in b/Obit/Makefile.in
+index d2667ac..bf2c392 100644
+--- a/Obit/Makefile.in
++++ b/Obit/Makefile.in
+@@ -56,7 +56,7 @@ DISTRIB = @PACKAGE_TARNAME@@PACKAGE_VERSION@
+ DIRN = @PACKAGE_NAME@
+ 
+ #------------------------------------------------------------------------
+-TARGETS = versionupdate cfitsioupdate xmlrpcupdate srcupdate libupdate \
++TARGETS = cfitsioupdate xmlrpcupdate srcupdate libupdate \
+ 	pythonupdate taskupdate
+ 
+ all:  $(TARGETS)
 
