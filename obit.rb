@@ -3,7 +3,8 @@ require 'formula'
 class ObitDownloadStrategy < SubversionDownloadStrategy
   def stage
     # Bake SVN revision into ObitVersion.c before staging/exporting the Obit tarball without commit history
-    safe_system 'python', cached_location+'Obit/share/scripts/getVersion.py', cached_location+'Obit'
+    quiet_system 'python', cached_location+'Obit/share/scripts/getVersion.py', cached_location+'Obit'
+    ohai 'Obit version is ' + File.open(cached_location+'Obit/src/ObitVersion.c').read[/"(\d+M*)"/][$1]
     super
   end
 end
@@ -50,26 +51,29 @@ class Obit < Formula
     ENV.deparallelize
     ENV.fortran
 
-    # Build and install main Obit package
+    ohai 'Building and installing main Obit package'
+    ohai '-----------------------------------------'
     Dir.chdir 'Obit'
-    system 'aclocal -I m4; autoconf'
+    safe_system 'aclocal -I m4; autoconf'
     system './configure', "--prefix=#{prefix}"
     system 'make'
-    system 'dsymutil lib/libObit.dylib'
+    safe_system 'dsymutil lib/libObit.dylib'
     # Since Obit does not do its own 'make install', we have to do it ourselves
-    system 'rm -f bin/.cvsignore include/.cvsignore'
+    ohai 'make install'
+    safe_system 'rm -f bin/.cvsignore include/.cvsignore'
     prefix.install 'bin'
     prefix.install 'include'
     lib.install 'lib/libObit.dylib', 'lib/libObit.dylib.dSYM'
-    system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
-    system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
-    system 'mkdir', '-p', "#{share}/obit"
-    system 'cp', '-R', 'share/data', 'share/scripts', 'TDF', "#{share}/obit"
-    system 'mkdir', '-p', "#{share}/obit/data/test", "#{share}/obit/scripts/test"
-    system 'cp', 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
-    system 'cp', 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
+    safe_system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
+    safe_system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
+    safe_system 'mkdir', '-p', "#{share}/obit"
+    safe_system 'cp', '-R', 'share/data', 'share/scripts', 'TDF', "#{share}/obit"
+    safe_system 'mkdir', '-p', "#{share}/obit/data/test", "#{share}/obit/scripts/test"
+    safe_system 'cp', 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
+    safe_system 'cp', 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
 
-    # Build and install ObitTalk package
+    ohai 'Building and installing ObitTalk package'
+    ohai '----------------------------------------'
     Dir.chdir '../ObitTalk'
     inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
     inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
@@ -84,9 +88,10 @@ class Obit < Formula
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
 
-    # Build and install ObitView package
+    ohai 'Building and installing ObitView package'
+    ohai '----------------------------------------'
     Dir.chdir '../ObitView'
-    system 'aclocal -I m4; autoconf'
+    safe_system 'aclocal -I m4; autoconf'
     system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
