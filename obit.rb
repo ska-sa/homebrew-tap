@@ -42,6 +42,7 @@ class Obit < Formula
     # Fix detection of XMLRPC libs in ObitView obit.m4 test
     # Fix bus error that manifested in BPass by adding index check
     # Don't update version in install as it is done as part of staging now
+    # Allow test scripts to run in any directory containing data
     DATA
   end
 
@@ -64,6 +65,9 @@ class Obit < Formula
     system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
     system 'mkdir', '-p', "#{share}/obit"
     system 'cp', '-R', 'share/data', 'share/scripts', 'TDF', "#{share}/obit"
+    system 'mkdir', '-p', "#{share}/obit/data/test", "#{share}/obit/scripts/test"
+    system 'cp', 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
+    system 'cp', 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
 
     # Build and install ObitTalk package
     Dir.chdir '../ObitTalk'
@@ -86,6 +90,19 @@ class Obit < Formula
     system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
+  end
+
+  def test
+    mktemp do
+      # Test plotting functionality via pgplot / plplot
+      safe_system 'cp', "#{share}/obit/data/test/AGNVLA.fits.gz", '.'
+      safe_system 'python', "#{share}/obit/scripts/test/testContourPlot.py"
+      if File.exists?('testCont.ps') then
+        ohai 'testContourPlot OK'
+      else
+        onoe 'testContourPlot FAILED'
+      end
+    end
   end
 
   def caveats; <<-EOS.undent
@@ -488,4 +505,18 @@ index d2667ac..bf2c392 100644
  	pythonupdate taskupdate
  
  all:  $(TARGETS)
-
+diff --git a/Obit/testScripts/testContourPlot.py b/Obit/testScripts/testContourPlot.py
+index f1305e2..434b431 100644
+--- a/Obit/testScripts/testContourPlot.py
++++ b/Obit/testScripts/testContourPlot.py
+@@ -1,8 +1,8 @@
+ # test Contour plot
+-import Obit, OTObit, Image, ImageUtil, OSystem, OErr, OPlot, math
++import Obit, OTObit, Image, ImageUtil, OSystem, OErr, OPlot, math, os
+ # Init Obit
+ err=OErr.OErr()
+-ObitSys=OSystem.OSystem ("Plot", 1, 100, 0, ["None"], 1, ["../testIt/"], 1, 0, err)
++ObitSys=OSystem.OSystem ("Plot", 1, 100, 0, ["None"], 1, [os.getcwd()], 1, 0, err)
+ OErr.printErrMsg(err, "Error with Obit startup")
+ 
+ # Contour plot
