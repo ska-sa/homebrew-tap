@@ -53,28 +53,28 @@ class Obit < Formula
 
     ohai 'Building and installing main Obit package'
     ohai '-----------------------------------------'
-    Dir.chdir 'Obit'
+    cd 'Obit'
     safe_system 'aclocal -I m4; autoconf'
     system './configure', "--prefix=#{prefix}"
     system 'make'
     safe_system 'dsymutil lib/libObit.dylib'
     # Since Obit does not do its own 'make install', we have to do it ourselves
     ohai 'make install'
-    safe_system 'rm -f bin/.cvsignore include/.cvsignore'
+    rm_f ['bin/.cvsignore', 'include/.cvsignore']
     prefix.install 'bin'
     prefix.install 'include'
     lib.install 'lib/libObit.dylib', 'lib/libObit.dylib.dSYM'
-    safe_system 'mkdir', '-p', "#{lib}/#{which_python}/site-packages"
-    safe_system 'cp', '-R', 'python/build/site-packages', "#{lib}/#{which_python}/"
-    safe_system 'mkdir', '-p', "#{share}/obit"
-    safe_system 'cp', '-R', 'share/data', 'share/scripts', 'TDF', "#{share}/obit"
-    safe_system 'mkdir', '-p', "#{share}/obit/data/test", "#{share}/obit/scripts/test"
-    safe_system 'cp', 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
-    safe_system 'cp', 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
+    mkdir_p "#{lib}/#{which_python}/site-packages"
+    cp_r 'python/build/site-packages', "#{lib}/#{which_python}/"
+    mkdir_p "#{share}/obit"
+    cp_r ['share/data', 'share/scripts', 'TDF'], "#{share}/obit"
+    mkdir_p ["#{share}/obit/data/test", "#{share}/obit/scripts/test"]
+    cp 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
+    cp 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
 
     ohai 'Building and installing ObitTalk package'
     ohai '----------------------------------------'
-    Dir.chdir '../ObitTalk'
+    cd '../ObitTalk'
     inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
     inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
     inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{which_python}/site-packages"
@@ -90,7 +90,7 @@ class Obit < Formula
 
     ohai 'Building and installing ObitView package'
     ohai '----------------------------------------'
-    Dir.chdir '../ObitView'
+    cd '../ObitView'
     safe_system 'aclocal -I m4; autoconf'
     system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
@@ -100,7 +100,7 @@ class Obit < Formula
   def test
     mktemp do
       # Test plotting functionality via pgplot / plplot
-      safe_system 'cp', "#{share}/obit/data/test/AGNVLA.fits.gz", '.'
+      cp "#{share}/obit/data/test/AGNVLA.fits.gz", '.'
       safe_system 'python', "#{share}/obit/scripts/test/testContourPlot.py"
       if File.exists?('testCont.ps') then
         ohai 'testContourPlot OK'
