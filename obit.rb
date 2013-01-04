@@ -14,8 +14,10 @@ class Obit < Formula
   head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem', :using => ObitDownloadStrategy
 
   # We need to find the MacTeX executables in order to build the Obit
-  # user manuals and they are not in the Homebrew restricted path
-  env :userpaths
+  # user manuals and they are not in the Homebrew restricted path.
+  # Also, since Obit is still quite experimental we want debug symbols
+  # included, which are aggressively stripped out in superenv.
+  env :std
 
   depends_on 'autoconf' => :build
   depends_on 'automake' => :build
