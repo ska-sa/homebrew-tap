@@ -12,6 +12,7 @@ class Casacore < Formula
   depends_on 'fftw'
   depends_on 'hdf5'
   depends_on 'readline'
+  depends_on 'casacore-data'
 
   fails_with :clang do
     build 421
@@ -28,5 +29,11 @@ class Casacore < Formula
            '-DUSE_HDF5=ON', "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}", '-DUSE_THREADS=ON',
            '-DDATA_DIR=/usr/local/share/casacore/data', *std_cmake_args
     system "make install"
+  end
+
+  def test
+    if not system 'findmeastable IGRF' and not system 'findmeastable DE405'
+      ohai 'casacore OK'
+    end
   end
 end
