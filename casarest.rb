@@ -1,10 +1,9 @@
 require 'formula'
 
 class Casarest < Formula
-  url 'svn://lofar9.astron.nl/var/svn/repos/trunk/casarest'
-  version '1.0.0'
   homepage 'http://www.astron.nl/meqwiki/LinkingWithCasaCore'
-  md5 ''
+  url 'https://svn.astron.nl/casarest/release/casarest/release-1.2.1'
+  head 'https://svn.astron.nl/casarest/trunk/casarest'
 
   depends_on 'casacore'
   depends_on 'cmake'
@@ -14,7 +13,7 @@ class Casarest < Formula
   depends_on 'hdf5'
 
   fails_with :clang do
-    build 318
+    build 421
     cause <<-EOS.undent
       Code does not follow C++ standard strictly but does whatever GCC allows
       EOS
@@ -23,20 +22,19 @@ class Casarest < Formula
   def patches
     # Fixes disallowed size_t vs int* comparison, which used to be specially
     # included for Darwin systems, but does not seem relevant anymore.
+    # Add boost_system library to avoid missing symbols
     DATA
   end
 
   def install
     ENV.fortran
-    Dir.mkdir 'build'
-    FileUtils.chdir('build', :verbose => false)
-    system "cmake .. -DCASACORE_ROOT_DIR=#{HOMEBREW_PREFIX} -DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX} -DCMAKE_INSTALL_PREFIX=#{prefix}"
+    mkdir_p 'build'
+    cd 'build'
+    system 'cmake', '..', "-DCASACORE_ROOT_DIR=#{HOMEBREW_PREFIX}",
+           "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}", *std_cmake_args
     system "make install"
-    system "mkdir -p #{prefix}/share"
-    system "mv ../measures_data #{prefix}/share/measures_data"
-  end
-
-  def test
+    mkdir_p "#{prefix}/share/casarest"
+    mv '../measures_data', "#{prefix}/share/casarest/data"
   end
 end
 
@@ -59,3 +57,16 @@ index 81ad733..c442f0d 100644
  
      ThrowIfError (code, "Semaphore::open: name='" + name_p + "'");
  }
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9d3be48..208108d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -38,7 +38,7 @@ find_package(CfitsIO REQUIRED)
+ find_package(WcsLib REQUIRED)
+ find_package(LAPACK REQUIRED)
+ find_package(BLAS REQUIRED)
+-find_package(Boost REQUIRED COMPONENTS thread)
++find_package(Boost REQUIRED COMPONENTS thread system)
+ find_package(HDF5)
+ if(NOT HDF5_FOUND)
+     message(STATUS "  HDF5 not used")
