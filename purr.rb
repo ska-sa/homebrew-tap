@@ -14,6 +14,7 @@ class Purr < Formula
   end
 
   def install
+    bin.install 'Purr/purr.py', 'Purr/purr'
     mkdir_p "#{lib}/#{which_python}/site-packages"
     cp_r ['Purr', 'Kittens'], "#{lib}/#{which_python}/site-packages/"
     mkdir_p "#{share}/meqtrees"
