@@ -27,10 +27,17 @@ class Makems < Formula
   end
 
   def test
-    # This test will fail and we won't accept that! It's enough to just replace
-    # "false" with the main program this formula installs, but it'd be nice if you
-    # were more thorough. Run the test with `brew test release`.
-    system "false"
+    mktemp do
+      # Create MS and convert to FITS to verify file structure
+      cp_r ["#{doc}/examples/WSRT_ANTENNA", "#{doc}/examples/makems.cfg"], '.'
+      system 'makems makems.cfg'
+      system 'ms2uvfits in=test.MS_p0 out=test.fits writesyscal=F'
+      if File.exists? 'test.fits' then
+        ohai 'makems OK'
+      else
+        onoe 'makems FAILED'
+      end
+    end
   end
 end
 
