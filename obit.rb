@@ -50,13 +50,14 @@ class Obit < Formula
     safe_system 'aclocal -I m4; autoconf'
     system './configure', "--prefix=#{prefix}"
     system 'make'
-    safe_system 'dsymutil lib/libObit.dylib'
+    # Assemble debug symbol (*.dSYM) files
+    safe_system 'dsymutil', 'lib/libObit.dylib', 'python/build/site-packages/Obit.so'
     # Since Obit does not do its own 'make install', we have to do it ourselves
     ohai 'make install'
     rm_f ['bin/.cvsignore', 'include/.cvsignore']
     prefix.install 'bin'
     prefix.install 'include'
-    lib.install 'lib/libObit.dylib', 'lib/libObit.dylib.dSYM'
+    lib.install Dir['lib/libObit.dylib*']
     mkdir_p "#{lib}/#{which_python}/site-packages"
     cp_r 'python/build/site-packages', "#{lib}/#{which_python}/"
     mkdir_p "#{share}/obit"
@@ -84,7 +85,6 @@ class Obit < Formula
     ohai 'Building and installing ObitView package'
     ohai '----------------------------------------'
     cd '../ObitView'
-#    safe_system 'aclocal -I m4; autoconf'
     system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
