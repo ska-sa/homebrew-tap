@@ -34,18 +34,9 @@ class Obit < Formula
   depends_on 'libair'
 
   def patches
-    # Fix python.m4 to find system Python executable
-    # Fix wvr.m4 to find libair and its header files
-    # Remove deprecated includes for glib version >= 2.32 
-    # Fix returns in Python wrapper code
     # Build main Obit library as shared dylib
     # Improve installation procedure for Python module
-    # Remove unused AIPS objects that introduce undefined symbols
-    # Make creation of doc directory idempotent
-    # Fix detection of XMLRPC libs in ObitView obit.m4 test
-    # Fix bus error that manifested in BPass by adding index check
     # Don't update version in install as it is done as part of staging now
-    # Allow test scripts to run in any directory containing data
     DATA
   end
 
@@ -93,7 +84,7 @@ class Obit < Formula
     ohai 'Building and installing ObitView package'
     ohai '----------------------------------------'
     cd '../ObitView'
-    safe_system 'aclocal -I m4; autoconf'
+#    safe_system 'aclocal -I m4; autoconf'
     system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
@@ -113,7 +104,7 @@ class Obit < Formula
     mktemp do
       # Test plotting functionality via pgplot / plplot
       cp "#{share}/obit/data/test/AGNVLA.fits.gz", '.'
-      safe_system 'python', "#{share}/obit/scripts/test/testContourPlot.py"
+      safe_system 'python', "#{share}/obit/scripts/test/testContourPlot.py", '.'
       if File.exists?('testCont.ps') then
         ohai 'testContourPlot OK'
       else
@@ -124,172 +115,6 @@ class Obit < Formula
 end
 
 __END__
-diff --git a/Obit/include/ObitThread.h b/Obit/include/ObitThread.h
-index 2be8bf2..68ca14a 100644
---- a/Obit/include/ObitThread.h
-+++ b/Obit/include/ObitThread.h
-@@ -29,7 +29,6 @@
- #include "ObitErr.h"
- #include "ObitInfoList.h"
- #include <glib.h>
--#include <glib/gthread.h>
- 
- /**
-  * \file ObitThread.h
-diff --git a/Obit/m4/python.m4 b/Obit/m4/python.m4
-index e729417..728ee71 100644
---- a/Obit/m4/python.m4
-+++ b/Obit/m4/python.m4
-@@ -26,7 +26,7 @@ AC_DEFUN([AC_PATH_PYTHON2_5], [
- # Includes
- if test "x$PYTHON_CPPFLAGS" = x; then
-     if test "x$PYTHON" = x; then
--        PYTHON=`pwd`/../../bin/python
-+        AC_PATH_PROG(PYTHON, python,, `pwd`/../../bin$PATH_SEPARATOR$PATH)
-     fi
- cat <<_ACEOF >conftest.py
- import distutils.sysconfig
-@@ -40,7 +40,7 @@ fi
- # Python libs
- if test "x$PYTHON_LD_FLAGS" = x; then
-     if test "x$PYTHON" = x; then
--        PYTHON=`pwd`/../../bin/python
-+        AC_PATH_PROG(PYTHON, python,, `pwd`/../../bin$PATH_SEPARATOR$PATH)
-     fi
- cat <<_ACEOF >conftest.py
- import distutils.sysconfig
-diff --git a/Obit/m4/wvr.m4 b/Obit/m4/wvr.m4
-index 57a2832..326e60e 100644
---- a/Obit/m4/wvr.m4
-+++ b/Obit/m4/wvr.m4
-@@ -23,21 +23,22 @@ AC_DEFUN([AC_PATH_WVR], [
-     fi
-   done[]])
- 
--echo "WVR CFLAGs $WVR_CFLAGS LDFLAGs $WVR_LDFLAGS"
- ac_wvr_saved_CFLAGS="$CFLAGS"
- ac_wvr_saved_LDFLAGS="$LDFLAGS"
- ac_wvr_saved_LIBS="$LIBS"
- CFLAGS="$CFLAGS $WVR_CFLAGS"
- LDFLAGS="$LDFLAGS $WVR_LDFLAGS"
--if ! test WVR_CFLAGS; then
--    WVR_CFLAGS="`--cflags`"
-+if test "x$WVR_CFLAGS" = x; then
-+    WVR_CFLAGS="`pkg-config libair --cflags`"
- fi
--# not there WVR_LIBS="`wvr-config --libs`"
-+WVR_LIBS="`pkg-config libair --libs`"
-+echo "WVR CFLAGs: $WVR_CFLAGS LDFLAGs: $WVR_LDFLAGS"
-+
- ac_have_wvr=no
- ac_have_wvrh=no
-   	touch /tmp/dummy1_wvr.h
-         AC_CHECK_HEADERS([/tmp/dummy1_wvr.h], [ac_have_wvrh=yes], [ac_have_wvrh=no],
--			[#include <almawvr/almaabs_c.h>])
-+			[#include <almaabs_c.h>])
- 	rm /tmp/dummy1_wvr.h
-  	if test $ac_have_wvrh = yes; then
- 	        AC_SEARCH_LIBS(almaabs_ret, [almawvr], [ac_have_wvr=yes], [ac_have_wvr=no], 
-@@ -67,14 +68,14 @@ for dir in $testdirs; do
- 		fi
- 	fi
- 	if test $ac_have_wvr = no; then
--		if  test -f $dir/include/almawvr/almaabs_c.h; then
-+		if  test -f $dir/include/almaabs_c.h; then
- 			WVR_CFLAGS="-I$dir/include"
- 			CPPFLAGS="$ac_wvr_saved_CPPFLAGS $WVR_CFLAGS"
- 			WVR_LDFLAGS="-L$dir/lib"
- 			LDFLAGS="$ac_wvr_saved_LDFLAGS $WVR_LDFLAGS"
-   			touch /tmp/dummy3_wvr.h
- 	        	AC_CHECK_HEADERS(/tmp/dummy3_wvr.h, [ac_have_wvrh=yes], [ac_have_wvrh=no],
--				[#include "almawvr/almaabs_c.h"])
-+				[#include "almaabs_c.h"])
- 			rm /tmp/dummy3_wvr.h
- 			if test $ac_have_wvrh = yes; then
- 				# Force check
-diff --git a/Obit/src/ObitSDMData.c b/Obit/src/ObitSDMData.c
-index 88c3b65..df3cb64 100644
---- a/Obit/src/ObitSDMData.c
-+++ b/Obit/src/ObitSDMData.c
-@@ -65,7 +65,6 @@ X    Weather.xml
- #include "ObitSDMData.h"
- #include "ObitEVLASysPower.h"
- #include "ObitFile.h"
--#include "glib/gqsort.h"
- 
- /*----------------Obit: Merx mollis mortibus nuper ------------------*/
- /**
-diff --git a/Obit/src/ObitTableUtil.c b/Obit/src/ObitTableUtil.c
-index 12ff756..e542569 100644
---- a/Obit/src/ObitTableUtil.c
-+++ b/Obit/src/ObitTableUtil.c
-@@ -28,7 +28,6 @@
- 
- #include <math.h>
- #include <string.h>
--#include "glib/gqsort.h"
- #include "ObitTableUtil.h"
- #include "ObitImage.h"
- #include "ObitInfoElem.h"
-diff --git a/Obit/tasks/WVRCal.c b/Obit/tasks/WVRCal.c
-index 582f1e9..bcbf64f 100644
---- a/Obit/tasks/WVRCal.c
-+++ b/Obit/tasks/WVRCal.c
-@@ -45,7 +45,7 @@
- #include "ObitThread.h"
- /* libAir stuff */
- #ifdef HAVE_WVR  /* Only if libAir available */
--#include "almawvr/almaabs_c.h"
-+#include "almaabs_c.h"
- #endif /* HAVE_WVR */
-   /* Speed of light */
- #ifndef VELIGHT
-diff --git a/Obit/src/ObitTableCCUtil.c b/Obit/src/ObitTableCCUtil.c
-index 72e34f2..695f264 100644
---- a/Obit/src/ObitTableCCUtil.c
-+++ b/Obit/src/ObitTableCCUtil.c
-@@ -26,7 +26,6 @@
- /*;                         Charlottesville, VA 22903-2475 USA        */
- /*--------------------------------------------------------------------*/
- 
--#include "glib/gqsort.h"
- #include "ObitTableCCUtil.h"
- #include "ObitMem.h"
- #include "ObitBeamShape.h"
-diff --git a/Obit/src/ObitUVSortBuffer.c b/Obit/src/ObitUVSortBuffer.c
-index 584da07..dc0db38 100644
---- a/Obit/src/ObitUVSortBuffer.c
-+++ b/Obit/src/ObitUVSortBuffer.c
-@@ -29,7 +29,6 @@
- #include "ObitUVSortBuffer.h"
- #include <math.h>
- #include <string.h>
--#include "glib/gqsort.h"
- 
- /*----------------Obit: Merx mollis mortibus nuper ------------------*/
- /**
-diff --git a/Obit/python/Obit_wrap.c b/Obit/python/Obit_wrap.c
-index 519bbec..68c8607 100644
---- a/Obit/python/Obit_wrap.c
-+++ b/Obit/python/Obit_wrap.c
-@@ -7827,7 +7827,7 @@ extern ObitTableDesc* TableDescDef(PyObject *inDict) {
-   repeat = PyDict_GetItemString(inDict, "repeat");
-   if (!repeat) {
-     PyErr_SetString(PyExc_TypeError,"repeat Array not found");
--    return;
-+    return out;
-   }
-   if (PyList_Size(repeat)!=nfield) {
-     PyErr_SetString(PyExc_TypeError,"repeat Array wrong dimension");
-@@ -38607,7 +38607,7 @@ static PyObject *_wrap_SpectrumFitImArr(PyObject *self, PyObject *args) {
-          }
-          if (!ObitImageIsA((ObitImage*)_arg2[i])) {  // check */
-            PyErr_SetString(PyExc_TypeError,"Type error. Expected ObitImage Object.");
--           return;
-+           return NULL;
-          }
-       } else {
-          PyErr_SetString(PyExc_TypeError,"list must contain Strings (ObitImage pointers)");
 diff --git a/Obit/lib/Makefile b/Obit/lib/Makefile
 index 40d2e7d..f8e4248 100644
 --- a/Obit/lib/Makefile
@@ -423,19 +248,6 @@ index b76a1a4..d2667ac 100644
  
  # update test software directory
  testupdate: 
-diff --git a/Obit/src/Makefile.in b/Obit/src/Makefile.in
-index 547ddc1..e8c56f1 100644
---- a/Obit/src/Makefile.in
-+++ b/Obit/src/Makefile.in
-@@ -53,7 +53,7 @@ ALL_CFLAGS = $(CFLAGS) @GSL_CFLAGS@ @GLIB_CFLAGS@ @PLPLOT_CFLAGS@ \
- 	mv $@.o $(LIBDIR)
- 
- # get list of all c source files (*.c) files
--AllC := $(wildcard *.c)
-+AllC := $(filter-out ObitAIPSFortran.c, $(filter-out ObitAIPSObject.c, $(wildcard *.c)))
- OBJECTS := $(patsubst %.c,%.o, $(AllC))
- 
- CTARGETS := $(addprefix $(LIBDIR),$(OBJECTS))
 diff --git a/ObitTalk/python/Makefile.in b/ObitTalk/python/Makefile.in
 index d2a2b26..e479a41 100644
 --- a/ObitTalk/python/Makefile.in
@@ -451,54 +263,6 @@ index d2a2b26..e479a41 100644
  
  install: $(PYTHONTAR) $(PROXYTAR) $(WIZTAR)
  
-diff --git a/ObitTalk/doc/Makefile.in b/ObitTalk/doc/Makefile.in
-index 7426d1d..79501bc 100644
---- a/ObitTalk/doc/Makefile.in
-+++ b/ObitTalk/doc/Makefile.in
-@@ -44,7 +44,7 @@ install: $(DOCDIR)
- 	cp *.pdf $(DOCDIR)
- 
- $(DOCDIR):
--	mkdir $(DOCDIR)
-+	mkdir -p $(DOCDIR)
- 
- 
- # clean up derived files
-diff --git a/ObitView/m4/obit.m4 b/ObitView/m4/obit.m4
-index 9e141d9..c2ac834 100644
---- a/ObitView/m4/obit.m4
-+++ b/ObitView/m4/obit.m4
-@@ -1,7 +1,7 @@
- # Find Obit libraries
- AC_DEFUN([AC_PATH_OBIT], [
--XMLRPC_LIBS="$XMLRPC_LIBS $GSL_LIBS $FFTW3_LIBS -lxmlrpc_abyss -lxmlrpc_client -lxmlrpc_server_abyss -lxmlrpc_server_cgi -lxmlrpc_server -lxmlrpc -lxmlrpc_util -lxmlrpc_xmlparse -lxmlrpc_xmltok"
--LIBS="$LIBS $XMLRPC_LIBS -lm -lcfitsio"
-+XMLRPC_LIBS="$XMLRPC_LIBS `xmlrpc-c-config client --libs` `xmlrpc-c-config abyss-server --libs`  "
-+LIBS="$LIBS $XMLRPC_LIBS $GSL_LIBS $FFTW3_LIBS -lm -lcfitsio"
- 
- # Default root of Obit directory is $OBIT
- 	OBIT_DIR="$OBIT"
-diff --git a/Obit/src/ObitTableCLUtil.c b/Obit/src/ObitTableCLUtil.c
-index 5ddb846..d73a88e 100644
---- a/Obit/src/ObitTableCLUtil.c
-+++ b/Obit/src/ObitTableCLUtil.c
-@@ -452,14 +452,14 @@ ObitTableCL* ObitTableCLGetDummy (ObitUV *inUV, ObitUV *outUV, olong ver,
- 	      /* Values for start of next scan */
- 	      row->Time   = rec[inUV->myDesc->iloct]; 
- 	      row->TimeI  = 0.0;
--	      row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
-+	      if (inUV->myDesc->ilocsu>=0) row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
- 	      row->SubA   = SubA;
- 	    } /* end write beginning of scan value */
- 	  } else {  /* in middle of scan - use average time */
- 	    /* Set descriptive info on Row */
- 	    row->Time  = sumTime/nTime;  /* time */
- 	    row->TimeI = MAX (0.0, (2.0 * (row->Time - t0)));
--	    row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
-+	    if (inUV->myDesc->ilocsu>=0) row->SourID = (oint)(rec[inUV->myDesc->ilocsu]+0.5);
- 	    row->SubA   = SubA;
- 	  }
-       
 diff --git a/Obit/Makefile.in b/Obit/Makefile.in
 index d2667ac..bf2c392 100644
 --- a/Obit/Makefile.in
@@ -512,18 +276,3 @@ index d2667ac..bf2c392 100644
  	pythonupdate taskupdate
  
  all:  $(TARGETS)
-diff --git a/Obit/testScripts/testContourPlot.py b/Obit/testScripts/testContourPlot.py
-index f1305e2..434b431 100644
---- a/Obit/testScripts/testContourPlot.py
-+++ b/Obit/testScripts/testContourPlot.py
-@@ -1,8 +1,8 @@
- # test Contour plot
--import Obit, OTObit, Image, ImageUtil, OSystem, OErr, OPlot, math
-+import Obit, OTObit, Image, ImageUtil, OSystem, OErr, OPlot, math, os
- # Init Obit
- err=OErr.OErr()
--ObitSys=OSystem.OSystem ("Plot", 1, 100, 0, ["None"], 1, ["../testIt/"], 1, 0, err)
-+ObitSys=OSystem.OSystem ("Plot", 1, 100, 0, ["None"], 1, [os.getcwd()], 1, 0, err)
- OErr.printErrMsg(err, "Error with Obit startup")
- 
- # Contour plot
