@@ -30,8 +30,10 @@ class Casarest < Formula
     ENV.fortran
     mkdir_p 'build'
     cd 'build'
-    system 'cmake', '..', "-DCASACORE_ROOT_DIR=#{HOMEBREW_PREFIX}",
-           "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}", *std_cmake_args
+    cmake_args = std_cmake_args
+    cmake_args << "-DCASACORE_ROOT_DIR=#{HOMEBREW_PREFIX}"
+    cmake_args << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
+    system 'cmake', '..', *cmake_args
     system "make install"
     mkdir_p "#{prefix}/share/casarest"
     mv '../measures_data', "#{prefix}/share/casarest/data"

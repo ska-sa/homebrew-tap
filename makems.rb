@@ -15,10 +15,16 @@ class Makems < Formula
   end
 
   def install
-    mkdir_p 'LOFAR/build/gnu_opt'
-    cd 'LOFAR/build/gnu_opt'
-    system 'cmake', "-DCMAKE_MODULE_PATH:PATH=#{Dir.pwd}/../../../LOFAR/CMake",
-           '-DUSE_LOG4CPLUS=OFF', '-DBUILD_TESTING=OFF', '../..', *std_cmake_args
+    # To get a build type besides "gnu_opt" we need to change from superenv to std env first
+    build_type = 'gnu_opt'
+    mkdir_p "LOFAR/build/#{build_type}"
+    cd "LOFAR/build/#{build_type}"
+    cmake_args = std_cmake_args
+    cmake_args.delete '-DCMAKE_BUILD_TYPE=None'
+    cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
+    cmake_args << "-DCMAKE_MODULE_PATH:PATH=#{Dir.pwd}/../../../LOFAR/CMake"
+    cmake_args << '-DUSE_LOG4CPLUS=OFF' << '-DBUILD_TESTING=OFF'
+    system 'cmake', '../..', *cmake_args
     system 'make'
     bin.install 'CEP/MS/src/makems'
     cd '../../../doc'

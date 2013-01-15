@@ -23,11 +23,17 @@ class Casacore < Formula
 
   def install
     ENV.fortran
-    mkdir_p 'build/opt'
-    cd 'build/opt'
-    system 'cmake', '../..', '-DUSE_FFTW3=ON', "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}",
-           '-DUSE_HDF5=ON', "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}", '-DUSE_THREADS=ON',
-           '-DDATA_DIR=/usr/local/share/casacore/data', *std_cmake_args
+    # To get a build type besides "release" we need to change from superenv to std env first
+    build_type = 'release'
+    mkdir_p "build/#{build_type}"
+    cd "build/#{build_type}"
+    cmake_args = std_cmake_args
+    cmake_args.delete '-DCMAKE_BUILD_TYPE=None'
+    cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
+    cmake_args << '-DUSE_FFTW3=ON' << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
+    cmake_args << '-DUSE_HDF5=ON' << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
+    cmake_args << '-DUSE_THREADS=ON' << '-DDATA_DIR=/usr/local/share/casacore/data'
+    system 'cmake', '../..', *cmake_args
     system "make install"
   end
 
