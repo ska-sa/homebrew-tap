@@ -54,22 +54,24 @@ class Meqtrees < Formula
       system 'curl -O http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
     end
 
-    build_type = if build.include? 'enable-debug' then 'debug' else 'release' end
+    build_type = build.include?('enable-debug') ? 'debug' : 'relwithdebinfo'
+    mkdir_p "build/#{build_type}"
+    cd "build/#{build_type}"
     cmake_args = std_cmake_args
     cmake_args.delete '-DCMAKE_BUILD_TYPE=None'
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'"
-    system 'Tools/Build/bootstrap_cmake', "#{build_type}", *cmake_args
-    cd "build/#{build_type}"
+    system 'cmake', '../..', *cmake_args
     system "make"
 
     ohai "make install"
-    cd "../../install/symlinked-#{build_type}/bin"
+    cd "../../install/symlinked-debug/bin"
     Dir.foreach('.') do |item|
       next if ['.', '..', 'purr.py', 'trut'].include? item
       # Preserve local links but dereference proper links
       item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
              then File.readlink(item) else item end
+      item.sub! '/debug/', "/#{build_type}/"
       bin.install item if File.exists? item
     end
 
@@ -85,6 +87,7 @@ class Meqtrees < Formula
       # Preserve local links but dereference proper links
       item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
              then File.readlink(item) else item end
+      item.sub! '/debug/', "/#{build_type}/"
       if File.exists? item
         if item.end_with? '.dylib'
           # Move Python extensions to main library directory (as executables also link to them)
@@ -111,7 +114,7 @@ class Meqtrees < Formula
       # Preserve local links but dereference proper links
       item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
              then File.readlink(item) else item end
-      item.sub! 'debug', build_type
+      item.sub! '/debug/', "/#{build_type}/"
       item.sub! '.so', '.dylib'
       lib.install item if File.exists? item
     end
