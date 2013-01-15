@@ -62,9 +62,8 @@ class Obit < Formula
     cp_r 'python/build/site-packages', "#{lib}/#{which_python}/"
     mkdir_p "#{share}/obit"
     cp_r ['share/data', 'share/scripts', 'TDF'], "#{share}/obit"
-    mkdir_p ["#{share}/obit/data/test", "#{share}/obit/scripts/test"]
-    cp 'testData/AGNVLA.fits.gz', "#{share}/obit/data/test"
-    cp 'testScripts/testContourPlot.py', "#{share}/obit/scripts/test"
+    mv 'testData', "#{share}/obit/data/test"
+    mv 'testScripts', "#{share}/obit/scripts/test"
 
     ohai 'Building and installing ObitTalk package'
     ohai '----------------------------------------'
@@ -102,13 +101,13 @@ class Obit < Formula
 
   def test
     mktemp do
-      # Test plotting functionality via pgplot / plplot
-      cp "#{share}/obit/data/test/AGNVLA.fits.gz", '.'
-      safe_system 'python', "#{share}/obit/scripts/test/testContourPlot.py", '.'
-      if File.exists?('testCont.ps') then
-        ohai 'testContourPlot OK'
-      else
-        onoe 'testContourPlot FAILED'
+      cp_r "#{share}/obit/data/test", 'data'
+      safe_system 'gunzip data/*.gz'
+      tests = ['testObit', 'testContourPlot', 'testFeather', 'testHGeom',
+               'testUVImage', 'testUVSub', 'testCleanVis']
+      tests.each do |name|
+        safe_system 'python', "#{share}/obit/scripts/test/#{name}.py", 'data'
+        ohai "#{name} OK"
       end
     end
   end
