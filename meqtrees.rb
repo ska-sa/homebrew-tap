@@ -7,6 +7,10 @@ class Meqtrees < Formula
 
   option 'enable-debug', 'Enable debug build of MeqTrees'
 
+  # Since MeqTrees is still quite experimental we want debug symbols
+  # included, which are aggressively stripped out in superenv.
+  env :std
+
   depends_on 'cmake' => :build
   depends_on 'casacore'
   depends_on 'pyrap'
@@ -49,14 +53,18 @@ class Meqtrees < Formula
     if not File.exists? 'h2py.py'
       system 'curl -O http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
     end
-    buildname = if build.include? 'enable-debug' then 'debug' else 'release' end
-    system 'Tools/Build/bootstrap_cmake', "#{buildname}",
-           "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'", *std_cmake_args
-    cd "build/#{buildname}"
+
+    build_type = if build.include? 'enable-debug' then 'debug' else 'release' end
+    cmake_args = std_cmake_args
+    cmake_args.delete '-DCMAKE_BUILD_TYPE=None'
+    cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
+    cmake_args << "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'"
+    system 'Tools/Build/bootstrap_cmake', "#{build_type}", *cmake_args
+    cd "build/#{build_type}"
     system "make"
 
     ohai "make install"
-    cd "../../install/symlinked-#{buildname}/bin"
+    cd "../../install/symlinked-#{build_type}/bin"
     Dir.foreach('.') do |item|
       next if ['.', '..', 'purr.py', 'trut'].include? item
       # Preserve local links but dereference proper links
@@ -103,9 +111,16 @@ class Meqtrees < Formula
       # Preserve local links but dereference proper links
       item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
              then File.readlink(item) else item end
-      item.sub! 'debug', buildname
+      item.sub! 'debug', build_type
       item.sub! '.so', '.dylib'
       lib.install item if File.exists? item
+    end
+
+    # Assemble debug symbol (*.dSYM) files
+    cd "#{lib}"
+    Dir.foreach('.') do |item|
+      next if not item.end_with? '.dylib'
+      safe_system 'dsymutil', item
     end
   end
 
