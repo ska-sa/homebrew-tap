@@ -1,9 +1,9 @@
 require 'formula'
 
 class Wcslib < Formula
-  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib-4.13.4.tar.bz2'
+  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib-4.16.tar.bz2'
   homepage 'http://www.atnf.csiro.au/people/mcalabre/WCS/'
-  md5 '94a24c7abd7d8edc514ed10896cbf4f0'
+  sha1 'd321ee3c82ecb14e447006ed475f3f0217aa589f'
 
   depends_on 'cfitsio'
   depends_on 'pgplot'
