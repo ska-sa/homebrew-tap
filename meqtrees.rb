@@ -5,7 +5,8 @@ class Meqtrees < Formula
   url 'https://svn.astron.nl/MeqTrees/release/Timba/release-1.2.1'
   head 'https://svn.astron.nl/MeqTrees/trunk/Timba'
 
-  option 'enable-debug', 'Enable debug build of MeqTrees'
+  option 'enable-debug', 'Enable debug build of MeqTrees as well as debugging symbols'
+  option 'without-symbols', 'Remove debugging symbols'
 
   # Since MeqTrees is still quite experimental we want debug symbols
   # included, which are aggressively stripped out in superenv.
@@ -54,7 +55,13 @@ class Meqtrees < Formula
       system 'curl -O http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
     end
 
-    build_type = build.include?('enable-debug') ? 'debug' : 'relwithdebinfo'
+    if build.include? 'enable-debug'
+      build_type = 'debug'
+    elsif build.include? 'without-symbols'
+      build_type = 'release'
+    else
+      build_type = 'relwithdebinfo'
+    end
     mkdir_p "build/#{build_type}"
     cd "build/#{build_type}"
     cmake_args = std_cmake_args
@@ -65,6 +72,7 @@ class Meqtrees < Formula
     system "make"
 
     ohai "make install"
+    # The debug symlink tree is the most complete - use as template for all build types
     cd "../../install/symlinked-debug/bin"
     Dir.foreach('.') do |item|
       next if ['.', '..', 'purr.py', 'trut'].include? item
@@ -73,6 +81,17 @@ class Meqtrees < Formula
              then File.readlink(item) else item end
       item.sub! '/debug/', "/#{build_type}/"
       bin.install item if File.exists? item
+    end
+
+    cd "../lib"
+    Dir.foreach('.') do |item|
+      next if not item.start_with? 'lib'
+      # Preserve local links but dereference proper links
+      item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
+             then File.readlink(item) else item end
+      item.sub! '/debug/', "/#{build_type}/"
+      item.sub! '.so', '.dylib'
+      lib.install item if File.exists? item
     end
 
     cd '../libexec/python/Timba'
@@ -107,23 +126,13 @@ class Meqtrees < Formula
     icons = if File.symlink? icons then File.readlink(icons) else icons end
     cp_r icons, "#{share}/meqtrees/icons/" if File.exists? icons
 
-    # The release symlink tree does not contain the shared libraries, but debug one does...
-    cd "../../../../symlinked-debug/lib"
-    Dir.foreach('.') do |item|
-      next if not item.start_with? 'lib'
-      # Preserve local links but dereference proper links
-      item = if (File.symlink? item) and (File.readlink(item).start_with? '../')
-             then File.readlink(item) else item end
-      item.sub! '/debug/', "/#{build_type}/"
-      item.sub! '.so', '.dylib'
-      lib.install item if File.exists? item
-    end
-
-    # Assemble debug symbol (*.dSYM) files
-    cd "#{lib}"
-    Dir.foreach('.') do |item|
-      next if not item.end_with? '.dylib'
-      safe_system 'dsymutil', item
+    # Assemble debug symbol (*.dSYM) files if the build type requires it
+    if build_type != 'release'
+      cd "#{lib}"
+      Dir.foreach('.') do |item|
+        next if not item.end_with? '.dylib'
+        safe_system 'dsymutil', item
+      end
     end
   end
 
