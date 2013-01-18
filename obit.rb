@@ -4,7 +4,7 @@ class ObitDownloadStrategy < SubversionDownloadStrategy
   def stage
     # Bake SVN revision into ObitVersion.c before staging/exporting the Obit tarball without commit history
     quiet_system 'python', cached_location+'Obit/share/scripts/getVersion.py', cached_location+'Obit'
-    ohai 'Obit version is ' + File.open(cached_location+'Obit/src/ObitVersion.c').read[/"(\d+M*)"/][$1]
+    ohai 'Obit version is ' + File.open(cached_location+'Obit/src/ObitVersion.c') {|f| f.read[/"(\d+M*)"/][$1]}
     super
   end
 end
