@@ -9,8 +9,11 @@ class Cattery < Formula
     mkdir_p "#{lib}/#{which_python}/site-packages"
     rm_f 'Meow/LSM0'
     cp_r 'LSM', 'Meow/LSM0'
-    cp_r ['Calico', 'LSM', 'Lions', 'Meow', 'Scripter', 'Siamese', 'qt.py'],
+    cp_r ['Calico', 'LSM', 'Lions', 'Meow', 'Siamese', 'qt.py'],
          "#{lib}/#{which_python}/site-packages/"
+    if build.head?
+      cp_r 'Scripter', "#{lib}/#{which_python}/site-packages/"
+    end
     mkdir_p "#{share}/meqtrees"
     cp_r 'test', "#{share}/meqtrees/"
   end
