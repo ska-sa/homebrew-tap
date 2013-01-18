@@ -42,10 +42,20 @@ end
 
 __END__
 diff --git a/Kittens/pixmaps.py b/Kittens/pixmaps.py
-index f136a5b..a1f5db4 100644
+index f136a5b..422cf68 100644
 --- a/Kittens/pixmaps.py
 +++ b/Kittens/pixmaps.py
-@@ -3087,7 +3087,8 @@ class PixmapCache (object):
+@@ -3020,7 +3020,8 @@ def load_icons (appname):
+   global __icons_loaded;
+   if __icons_loaded:
+     return;
+-  for path in sys.path:
++  icon_paths = ['/usr/local/share/meqtrees'] + sys.path
++  for path in icon_paths:
+     path = path or '.';
+     # for each entry, try <entry>/icons/<appname>'
+     trydir = os.path.join(path,'icons',appname);
+@@ -3087,7 +3088,8 @@ class PixmapCache (object):
      # loop over system path
      if self._loaded:
        return;
