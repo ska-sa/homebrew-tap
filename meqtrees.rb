@@ -47,6 +47,8 @@ class Meqtrees < Formula
     p << 'https://gist.github.com/raw/4568292/38983609880a37d0a93d626628d31fbba76accd2/patch5.diff' if not build.head?
     # Suppress compiler warning by using correct format specifier
     p << 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
+    # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only
+    p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff'
     return p.empty? ? nil : p
   end
 
@@ -152,12 +154,5 @@ class Meqtrees < Formula
 
   def which_python
     "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
-  end
-
-  def test
-    # This test will fail and we won't accept that! It's enough to just replace
-    # "false" with the main program this formula installs, but it'd be nice if you
-    # were more thorough. Run the test with `brew test release`.
-    system "false"
   end
 end
