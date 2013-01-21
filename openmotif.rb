@@ -3,7 +3,7 @@ require 'formula'
 class Openmotif < Formula
   url 'http://motif.ics.com/sites/default/files/openmotif-2.3.3.tar.gz'
   homepage 'http://motif.ics.com/'
-  md5 'fd27cd3369d6c7d5ef79eccba524f7be'
+  sha1 '2a51e2f28078c4db7ff0c8517eb257001716b699'
 
   depends_on 'pkg-config' => :build
   depends_on :x11

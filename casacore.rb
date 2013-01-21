@@ -6,7 +6,7 @@ class Casacore < Formula
   sha1 'dca7a451c02b141b9e338ba4ffa713693693ce42'
   head 'http://casacore.googlecode.com/svn/trunk'
 
-  depends_on 'cmake'
+  depends_on 'cmake' => :build
   depends_on 'cfitsio'
   depends_on 'wcslib'
   depends_on 'fftw'

@@ -5,8 +5,8 @@ class Casarest < Formula
   url 'https://svn.astron.nl/casarest/release/casarest/release-1.2.1'
   head 'https://svn.astron.nl/casarest/trunk/casarest'
 
+  depends_on 'cmake' => :build
   depends_on 'casacore'
-  depends_on 'cmake'
   depends_on 'boost'
   depends_on 'readline'
   depends_on 'wcslib'
@@ -35,8 +35,8 @@ class Casarest < Formula
     cmake_args << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
     system 'cmake', '..', *cmake_args
     system "make install"
-    mkdir_p "#{prefix}/share/casarest"
-    mv '../measures_data', "#{prefix}/share/casarest/data"
+    mkdir_p "#{share}/casarest"
+    mv '../measures_data', "#{share}/casarest/data"
   end
 end
 

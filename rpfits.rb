@@ -3,7 +3,7 @@ require 'formula'
 class Rpfits < Formula
   url 'ftp://ftp.atnf.csiro.au/pub/software/rpfits/rpfits-2.23.tar.gz'
   homepage 'http://www.atnf.csiro.au/computing/software/rpfits.html'
-  md5 '197407a6b463e8d8f40040075a3983a3'
+  sha1 '16e4b14ea6cbdeedbc7f47adec3ff2b0aec621de'
 
   def install
     ENV.j1

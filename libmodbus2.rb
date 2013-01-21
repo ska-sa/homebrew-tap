@@ -3,7 +3,7 @@ require 'formula'
 class Libmodbus2 < Formula
   url 'http://github.com/downloads/stephane/libmodbus/libmodbus-2.0.4.tar.gz'
   homepage 'http://libmodbus.org'
-  md5 '6b3aa500ab441a953eeb73a8c58cdf76'
+  sha1 'f9bed0fac60d8409865a9eddd88b2dc109d407cb'
 
   def install
     system "./configure", "--disable-dependency-tracking",

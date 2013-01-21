@@ -3,10 +3,10 @@ require 'formula'
 class Pyrap < Formula
   homepage 'http://code.google.com/p/pyrap/'
   url 'http://pyrap.googlecode.com/files/pyrap-1.1.0.tar.bz2'
-  md5 'afc5f0ddc7f277492d4f0e2ac4b9bd0d'
+  sha1 '8901071b09f747f0a210f180f91869e020c9d081'
   head 'http://pyrap.googlecode.com/svn/trunk'
 
-  depends_on 'scons'
+  depends_on 'scons' => :build
   depends_on 'boost'
   depends_on 'casacore'
 
