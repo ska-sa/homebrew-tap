@@ -11,6 +11,7 @@ class Purr < Formula
   def patches
     # First look for icons in meqtrees share directory
     # Provide alternatives for Linux-only 'cp -u' and 'mv -u'
+    # Escape spaces in paths sent to pychart to produce histograms
     DATA
   end
 
@@ -109,3 +110,16 @@ index a7eb82f..9609d3f 100644
              print "Error moving %s to %s"%(sourcepath,destname);
              print "This data product is not saved.";
              continue;
+diff --git a/Purr/Plugins/fits.py b/Purr/Plugins/fits.py
+index 892388f..c36115c 100644
+--- a/Purr/Plugins/fits.py
++++ b/Purr/Plugins/fits.py
+@@ -107,6 +107,8 @@ class FITSRenderer (CachingRenderer):
+     xy = [];
+     for a,b in zip(x,y):
+       xy += [(a,b),(a+width,b)];
++    # Make sure all spaces in path are escaped as pychart cannot handle them
++    path = path.replace('\ ', ' ').replace(' ', '\ ');
+     canv = canvas.init(path);
+     ar = area.T(
+       x_axis=axis.X(label="/20{}"+title,format="/20{}%g",tic_interval=self.compute_tics),
