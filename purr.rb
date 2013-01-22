@@ -10,6 +10,7 @@ class Purr < Formula
 
   def patches
     # First look for icons in meqtrees share directory
+    # Provide alternatives for Linux-only 'cp -u' and 'mv -u'
     DATA
   end
 
@@ -65,3 +66,46 @@ index f136a5b..422cf68 100644
        path = path or '.';
        # for each entry, try <entry>/icons/<appname>'
        trydir = os.path.join(path,'icons',self._appname);
+diff --git a/Purr/LogEntry.py b/Purr/LogEntry.py
+index a7eb82f..9609d3f 100644
+--- a/Purr/LogEntry.py
++++ b/Purr/LogEntry.py
+@@ -12,6 +12,23 @@ import Purr.Render
+ import Purr.RenderIndex
+ from Purr.Render import quote_url
+ 
++
++def _copy_update(sourcepath, destname):
++  """Copy source to dest only if source is newer."""
++  if sys.platform.startswith('linux'):
++    return os.system("/bin/cp -ua '%s' '%s'"%(sourcepath,destname))
++  else:
++    return os.system("rsync -ua '%s' '%s'"%(sourcepath,destname))
++
++
++def _move_update(sourcepath, destname):
++  """Move source to dest only if source is newer."""
++  if sys.platform.startswith('linux'):
++    return os.system("/bin/mv -fu '%s' '%s'"%(sourcepath,destname))
++  else:
++    return os.system("rsync -ua --remove-source-files '%s' '%s'"%(sourcepath,destname))
++
++
+ class DataProduct (object):
+   def __init__ (self,filename=None,sourcepath=None,fullpath=None,
+       policy="copy",comment="",
+@@ -328,12 +345,12 @@ class LogEntry (object):
+         # now copy/move it over
+         if dp.policy == "copy":
+           dprintf(2,"copying\n");
+-          if os.system("/bin/cp -ua '%s' '%s'"%(sourcepath,destname)):
++          if _copy_update(sourcepath,destname):
+             print "Error copying %s to %s"%(sourcepath,destname);
+             print "This data product is not saved.";
+             continue;
+         elif dp.policy.startswith('move'):
+-          if os.system("/bin/mv -fu '%s' '%s'"%(sourcepath,destname)):
++          if _move_update(sourcepath,destname):
+             print "Error moving %s to %s"%(sourcepath,destname);
+             print "This data product is not saved.";
+             continue;
