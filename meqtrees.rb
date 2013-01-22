@@ -50,7 +50,7 @@ class Meqtrees < Formula
     # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only
     p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff'
     # Provide link to Siamese package instead of Cattery to get it included in sidebars of GUI file dialogs
-    p << 'https://gist.github.com/raw/4568292/c5dcd43b63a41b3a884a0386ea9984779a43dc78/patch8.diff'
+    p << 'https://gist.github.com/raw/4568292/e33ca38600870e932822dbf23378c88993211035/patch8.diff'
     return p.empty? ? nil : p
   end
 
@@ -111,9 +111,6 @@ class Meqtrees < Formula
     mkdir_p timba
     # Create DLFCN.py for our system
     quiet_system 'python ../../../../../h2py.py /usr/include/dlfcn.h'
-    # Look for Timba add-on packages in standard Python path first
-    inreplace '__init__.py', '_PackageLocations = [',
-              "_PackageLocations = [ '#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages',"
     Dir.foreach('.') do |item|
       next if ['.', '..'].include? item
       # Preserve local links but dereference proper links
