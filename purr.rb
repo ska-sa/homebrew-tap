@@ -9,10 +9,14 @@ class Purr < Formula
   depends_on 'pyfits' => :python
 
   def patches
-    # First look for icons in meqtrees share directory
-    # Provide alternatives for Linux-only 'cp -u' and 'mv -u'
-    # Escape spaces in paths sent to pychart to produce histograms
-    DATA
+    p = []
+    # First look for icons in meqtrees share directory (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4705954/bdcfe30b6f63a4d634f33fcfa4334ea7760cd69d/patch1.diff' if not build.head?
+    # Provide alternatives for Linux-only 'cp -u' and 'mv -u' (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4705954/95942b16e28c387b89ff64baf986b141c037d422/patch2.diff' if not build.head?
+    # Escape spaces in paths sent to pychart to produce histograms (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4705954/fef3b6a3386a3b8c8ec512099fc14b2bcb680e47/patch3.diff' if not build.head?
+    return p.empty? ? nil : p
   end
 
   def install
@@ -41,85 +45,3 @@ class Purr < Formula
     end
   end
 end
-
-__END__
-diff --git a/Kittens/pixmaps.py b/Kittens/pixmaps.py
-index f136a5b..422cf68 100644
---- a/Kittens/pixmaps.py
-+++ b/Kittens/pixmaps.py
-@@ -3020,7 +3020,8 @@ def load_icons (appname):
-   global __icons_loaded;
-   if __icons_loaded:
-     return;
--  for path in sys.path:
-+  icon_paths = ['/usr/local/share/meqtrees'] + sys.path
-+  for path in icon_paths:
-     path = path or '.';
-     # for each entry, try <entry>/icons/<appname>'
-     trydir = os.path.join(path,'icons',appname);
-@@ -3087,7 +3088,8 @@ class PixmapCache (object):
-     # loop over system path
-     if self._loaded:
-       return;
--    for path in sys.path:
-+    icon_paths = ['/usr/local/share/meqtrees'] + sys.path
-+    for path in icon_paths:
-       path = path or '.';
-       # for each entry, try <entry>/icons/<appname>'
-       trydir = os.path.join(path,'icons',self._appname);
-diff --git a/Purr/LogEntry.py b/Purr/LogEntry.py
-index a7eb82f..9609d3f 100644
---- a/Purr/LogEntry.py
-+++ b/Purr/LogEntry.py
-@@ -12,6 +12,23 @@ import Purr.Render
- import Purr.RenderIndex
- from Purr.Render import quote_url
- 
-+
-+def _copy_update(sourcepath, destname):
-+  """Copy source to dest only if source is newer."""
-+  if sys.platform.startswith('linux'):
-+    return os.system("/bin/cp -ua '%s' '%s'"%(sourcepath,destname))
-+  else:
-+    return os.system("rsync -ua '%s' '%s'"%(sourcepath,destname))
-+
-+
-+def _move_update(sourcepath, destname):
-+  """Move source to dest only if source is newer."""
-+  if sys.platform.startswith('linux'):
-+    return os.system("/bin/mv -fu '%s' '%s'"%(sourcepath,destname))
-+  else:
-+    return os.system("rsync -ua --remove-source-files '%s' '%s'"%(sourcepath,destname))
-+
-+
- class DataProduct (object):
-   def __init__ (self,filename=None,sourcepath=None,fullpath=None,
-       policy="copy",comment="",
-@@ -328,12 +345,12 @@ class LogEntry (object):
-         # now copy/move it over
-         if dp.policy == "copy":
-           dprintf(2,"copying\n");
--          if os.system("/bin/cp -ua '%s' '%s'"%(sourcepath,destname)):
-+          if _copy_update(sourcepath,destname):
-             print "Error copying %s to %s"%(sourcepath,destname);
-             print "This data product is not saved.";
-             continue;
-         elif dp.policy.startswith('move'):
--          if os.system("/bin/mv -fu '%s' '%s'"%(sourcepath,destname)):
-+          if _move_update(sourcepath,destname):
-             print "Error moving %s to %s"%(sourcepath,destname);
-             print "This data product is not saved.";
-             continue;
-diff --git a/Purr/Plugins/fits.py b/Purr/Plugins/fits.py
-index 892388f..c36115c 100644
---- a/Purr/Plugins/fits.py
-+++ b/Purr/Plugins/fits.py
-@@ -107,6 +107,8 @@ class FITSRenderer (CachingRenderer):
-     xy = [];
-     for a,b in zip(x,y):
-       xy += [(a,b),(a+width,b)];
-+    # Make sure all spaces in path are escaped as pychart cannot handle them
-+    path = path.replace('\ ', ' ').replace(' ', '\ ');
-     canv = canvas.init(path);
-     ar = area.T(
-       x_axis=axis.X(label="/20{}"+title,format="/20{}%g",tic_interval=self.compute_tics),

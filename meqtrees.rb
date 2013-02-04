@@ -35,20 +35,20 @@ class Meqtrees < Formula
 
   def patches
     p = []
-    # Added explicit template instantiation and corrected constness
-    p << 'https://gist.github.com/raw/4568292/e187cef9d60d4b89293f2d6b93ad9940ccd9c5aa/patch1.diff'
-    # Use correct version of strerror_r on the Mac
-    p << 'https://gist.github.com/raw/4568292/21ebb9fd3094b18c37555ef1288915036c623c03/patch2.diff'
-    # Fixed bug in thread map index
-    p << 'https://gist.github.com/raw/4568292/058d009cd7e90f9578d90494b508b96968dddd13/patch3.diff'
+    # Added explicit template instantiation and corrected constness (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4568292/e187cef9d60d4b89293f2d6b93ad9940ccd9c5aa/patch1.diff' if not build.head?
+    # Use correct version of strerror_r on the Mac (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4568292/21ebb9fd3094b18c37555ef1288915036c623c03/patch2.diff' if not build.head?
+    # Fixed bug in thread map index (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4568292/058d009cd7e90f9578d90494b508b96968dddd13/patch3.diff' if not build.head?
     # Add support for Blitz++ 0.10
     p << 'https://gist.github.com/raw/4568292/76627df1f718eceef29fa3e224d2bfee90c3ce06/patch4.diff'
     # Disambiguate Mutex::Lock class (fixed in HEAD)
     p << 'https://gist.github.com/raw/4568292/38983609880a37d0a93d626628d31fbba76accd2/patch5.diff' if not build.head?
     # Suppress compiler warning by using correct format specifier
-    p << 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
-    # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only
-    p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff'
+#    p << 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
+    # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff' if not build.head?
     # Provide link to Siamese package instead of Cattery to get it included in sidebars of GUI file dialogs
     p << 'https://gist.github.com/raw/4568292/e33ca38600870e932822dbf23378c88993211035/patch8.diff'
     return p.empty? ? nil : p

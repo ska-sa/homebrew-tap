@@ -20,10 +20,13 @@ class Casarest < Formula
   end
 
   def patches
+    p = []
     # Fixes disallowed size_t vs int* comparison, which used to be specially
-    # included for Darwin systems, but does not seem relevant anymore.
-    # Add boost_system library to avoid missing symbols
-    DATA
+    # included for Darwin systems, but does not seem relevant anymore (fixed in HEAD).
+    p << 'https://gist.github.com/raw/4705907/678753a3fc04751457271c82f4a3fe39149b5819/patch1.diff' if not build.head?
+    # Add boost_system library to avoid missing symbols (fixed in HEAD)
+    p << 'https://gist.github.com/raw/4705907/a199623d33e3dd566a8ffe15cc0448f6e771e44d/patch2.diff' if not build.head?
+    return p.empty? ? nil : p
   end
 
   def install
@@ -39,36 +42,3 @@ class Casarest < Formula
     mv '../measures_data', "#{share}/casarest/data"
   end
 end
-
-__END__
-diff --git a/msvis/MSVis/AsynchronousTools.cc b/msvis/MSVis/AsynchronousTools.cc
-index 81ad733..c442f0d 100644
---- a/msvis/MSVis/AsynchronousTools.cc
-+++ b/msvis/MSVis/AsynchronousTools.cc
-@@ -508,13 +508,8 @@ Semaphore::Semaphore (int initialValue)
- 
-         name_p = utilj::format ("/CasaAsync_%03d", i);
-         impl_p->semaphore_p = sem_open (name_p.c_str(), O_CREAT | O_EXCL, 0700, initialValue);//new sem_t;
--#ifdef __APPLE__
--        code = (size_t(impl_p->semaphore_p) == SEM_FAILED) ? errno : 0;
--    } while (size_t(impl_p->semaphore_p) == SEM_FAILED && code == EEXIST);
--#else
-         code = (impl_p->semaphore_p == SEM_FAILED) ? errno : 0;
-     } while (impl_p->semaphore_p == SEM_FAILED && code == EEXIST);
--#endif
- 
-     ThrowIfError (code, "Semaphore::open: name='" + name_p + "'");
- }
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9d3be48..208108d 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -38,7 +38,7 @@ find_package(CfitsIO REQUIRED)
- find_package(WcsLib REQUIRED)
- find_package(LAPACK REQUIRED)
- find_package(BLAS REQUIRED)
--find_package(Boost REQUIRED COMPONENTS thread)
-+find_package(Boost REQUIRED COMPONENTS thread system)
- find_package(HDF5)
- if(NOT HDF5_FOUND)
-     message(STATUS "  HDF5 not used")
