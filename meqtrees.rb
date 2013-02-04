@@ -55,7 +55,7 @@ class Meqtrees < Formula
   end
 
   fails_with :clang do
-    build 421
+    build 425
     cause <<-EOS.undent
       Throws 'allocation of incomplete type' error on DMI::NumArray
       EOS

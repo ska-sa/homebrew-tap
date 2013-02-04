@@ -13,7 +13,7 @@ class Casarest < Formula
   depends_on 'hdf5'
 
   fails_with :clang do
-    build 421
+    build 425
     cause <<-EOS.undent
       Code does not follow C++ standard strictly but does whatever GCC allows
       EOS
