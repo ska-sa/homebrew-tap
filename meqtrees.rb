@@ -62,9 +62,9 @@ class Meqtrees < Formula
   end
 
   def install
-    # Hopefully this Python script will be included in MeqTrees repository in future
-    if not File.exists? 'h2py.py'
-      system 'curl -O http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
+    # If semi-standard Python script not included in MeqTrees repository, download it (Python version 2.7)
+    if not File.exists? 'Tools/Build/h2py.py'
+      system 'curl -o Tools/Build/h2py.py http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
     end
 
     if build.include? 'enable-debug'
@@ -110,7 +110,7 @@ class Meqtrees < Formula
     timba = "#{lib}/#{which_python}/site-packages/Timba"
     mkdir_p timba
     # Create DLFCN.py for our system
-    quiet_system 'python ../../../../../h2py.py /usr/include/dlfcn.h'
+    quiet_system 'python ../../../../../Tools/Build/h2py.py /usr/include/dlfcn.h'
     Dir.foreach('.') do |item|
       next if ['.', '..'].include? item
       # Preserve local links but dereference proper links
