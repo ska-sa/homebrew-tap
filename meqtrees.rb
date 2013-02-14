@@ -49,8 +49,8 @@ class Meqtrees < Formula
 #    p << 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
     # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only (fixed in HEAD)
     p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff' if not build.head?
-    # Provide link to Siamese package instead of Cattery to get it included in sidebars of GUI file dialogs
-    p << 'https://gist.github.com/raw/4568292/e33ca38600870e932822dbf23378c88993211035/patch8.diff'
+    # Provide link to Siamese and Calico packages instead of Cattery to get it included in sidebars of GUI file dialogs
+    p << 'https://gist.github.com/ludwigschwardt/4568292/raw/abd9de4a07380e296e7b5e592313c8494fae9bb1/patch8.diff'
     return p.empty? ? nil : p
   end
 
