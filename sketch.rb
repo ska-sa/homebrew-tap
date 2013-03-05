@@ -15,5 +15,23 @@ class Sketch < Formula
     system "make docs"
     bin.install "sketch"
     doc.install "Doc/sketch.pdf"
+    mkdir_p "#{share}/sketch/examples"
+    cp_r Dir['Data/*'], "#{share}/sketch/examples/"
+  end
+
+  def test
+    mktemp do
+      cp_r Dir["#{share}/sketch/examples/*.sk"], '.'
+      Dir['*.sk'].each do |name|
+        # Contains a pspicture baseline that causes unhappiness
+        next if name == 'buggy.sk'
+        quiet_system "sketch -T #{name} > #{name}.tex"
+        quiet_system 'latex', "#{name}.tex"
+        quiet_system 'dvips', "#{name}.dvi"
+        quiet_system 'ps2pdf', "#{name}.ps"
+#        quiet_system 'open', "#{name}.pdf"
+        ohai "#{name} OK"
+      end
+    end
   end
 end
