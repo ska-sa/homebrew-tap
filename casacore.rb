@@ -14,11 +14,14 @@ class Casacore < Formula
   depends_on 'readline'
   depends_on 'casacore-data'
 
-  fails_with :clang do
-    build 421
-    cause <<-EOS.undent
-      CMake reports: Don't know how to enable thread support for /usr/bin/clang
-      EOS
+  if not build.head?
+    # This CMake compiler detection issue is fixed in HEAD
+    fails_with :clang do
+      build 425
+      cause <<-EOS.undent
+        CMake reports: Don't know how to enable thread support for /usr/bin/clang
+        EOS
+    end
   end
 
   def install
