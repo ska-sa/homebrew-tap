@@ -68,6 +68,17 @@ class Obit < Formula
     ohai 'Building and installing ObitTalk package'
     ohai '----------------------------------------'
     cd '../ObitTalk'
+    begin
+      # Check for the presence of LaTeX and friends
+      quiet_system 'latex --version'
+      quiet_system 'bibtex --version'
+      quiet_system 'dvips --version'
+      quiet_system 'which dvipdf'
+    rescue ErrorDuringExecution
+      # Remove the documentation build (brittle but preferable to getting aclocal and automake involved)
+      inreplace 'Makefile.in', ' doc', ''
+      opoo 'No TeX installation found - documentation will not be built (please install MacTeX first if you want docs)'
+    end
     inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
     inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
     inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{which_python}/site-packages"
