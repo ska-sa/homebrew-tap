@@ -28,12 +28,23 @@ class Pyrap < Formula
       build_cmd = 'batchbuild.py'
     end
     python_prefix = "#{lib}/#{which_python}/site-packages"
-    system "PYTHONPATH=#{python_prefix}:${PYTHONPATH}",
-           "python", "#{build_cmd}",
+    system "python", "#{build_cmd}",
            "--boost-root=#{HOMEBREW_PREFIX}", "--boost-lib=boost_python-mt",
            "--enable-hdf5", "--prefix=#{prefix}",
            "--python-prefix=#{python_prefix}",
            "--universal=x86_64"
+    # Get rid of horrible eggs as they trample on other packages via site.py and easy-install.pth
+    cd "#{python_prefix}"
+    rm_f ['easy-install.pth', 'site.py', 'site.pyc']
+    mkdir 'pyrap'
+    touch 'pyrap/__init__.py'
+    Dir['pyrap.*.egg'].each do |egg|
+      Dir.foreach("#{egg}/pyrap") do |item|
+        next if ['.', '..', '__init__.py', '__init__.pyc'].include? item
+        mv "#{egg}/pyrap/#{item}", 'pyrap/'
+      end
+      rm_rf egg
+    end
   end
   
   def caveats; <<-EOS.undent
