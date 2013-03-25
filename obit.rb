@@ -69,11 +69,8 @@ class Obit < Formula
     ohai '----------------------------------------'
     cd '../ObitTalk'
     begin
-      # Check for the presence of LaTeX and friends
-      quiet_system 'latex --version'
-      quiet_system 'bibtex --version'
-      quiet_system 'dvips --version'
-      quiet_system 'which dvipdf'
+      ohai "Checking for the presence of LaTeX and friends for building documentation"
+      safe_system 'which latex bibtex dvips dvipdf'
     rescue ErrorDuringExecution
       # Remove the documentation build (brittle but preferable to getting aclocal and automake involved)
       inreplace 'Makefile.in', ' doc', ''
