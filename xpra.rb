@@ -5,6 +5,9 @@ class Xpra < Formula
   url 'https://www.xpra.org/src/xpra-0.7.8.tar.bz2'
   sha1 '0f8b433c97b707e555c4b45e6a411c007baebdf8'
 
+  # We want pkg-config
+  env :userpaths
+
   depends_on :x11
   depends_on 'pygtk'
   depends_on 'ffmpeg'
