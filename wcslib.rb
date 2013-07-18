@@ -1,9 +1,9 @@
 require 'formula'
 
 class Wcslib < Formula
-  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib-4.17.tar.bz2'
+  url 'ftp://ftp.atnf.csiro.au/pub/software/wcslib/wcslib-4.18.tar.bz2'
   homepage 'http://www.atnf.csiro.au/people/mcalabre/WCS/'
-  sha1 '74ec5fd6ec93e9a09798598c3738b3d4bc99b3e7'
+  sha1 '94fd36ef6adf9c7181ba12dc0959680a6c0ea776'
 
   option 'without-tests', 'Do not install test suite'
 
