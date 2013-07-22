@@ -18,6 +18,9 @@ class Pyrap < Formula
     # Patch to ignore fortran to c library (aka libgfortran)
     p << 'https://gist.github.com/ludwigschwardt/5195760/raw/0bda200fb5c8f743c488077e94195c786ecb2486/patch3.diff'
     p << 'https://gist.github.com/ludwigschwardt/5195760/raw/5bdd5e6ab42e9551750128c441a775dffaa3feea/patch4.diff' if build.head?
+    # Patch to disable explicit linking to system Python framework in order to support brew Python (and other non-system versions)
+    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/0dbf63fba7b4caed537c84eb26c42afc7db0ec23/patch5.diff' if not build.head?
+    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/a270c600a5870523192a791c6a4459bbddc293b3/patch6.diff' if build.head?
     return p.empty? ? nil : p
   end
 
