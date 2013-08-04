@@ -33,6 +33,7 @@ class Obit < Formula
   depends_on 'boost'
   depends_on 'libair'
   depends_on :python
+  depends_on :fortran
 
   def patches
     # Build main Obit library as shared dylib
@@ -43,8 +44,6 @@ class Obit < Formula
   end
 
   def install
-    ENV.fortran
-
     ohai 'Building and installing main Obit package'
     ohai '-----------------------------------------'
     cd 'Obit'

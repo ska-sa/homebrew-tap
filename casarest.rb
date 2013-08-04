@@ -11,6 +11,7 @@ class Casarest < Formula
   depends_on 'readline'
   depends_on 'wcslib'
   depends_on 'hdf5'
+  depends_on :fortran
 
   fails_with :clang do
     build 425
@@ -30,7 +31,6 @@ class Casarest < Formula
   end
 
   def install
-    ENV.fortran
     mkdir_p 'build'
     cd 'build'
     cmake_args = std_cmake_args

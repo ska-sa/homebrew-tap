@@ -8,6 +8,7 @@ class Bnmin1 < Formula
   depends_on 'swig' => :build
   depends_on 'boost'
   depends_on 'gsl'
+  depends_on :fortran
 
   def patches
     # Patch 1: Allow the use of SWIG 2.x for Python bindings
@@ -17,7 +18,6 @@ class Bnmin1 < Formula
 
   def install
     ENV.deparallelize
-    ENV.fortran
     # Avoid arithmetic overflow in pda_d1mach.f
     ENV['FFLAGS'] = '-fno-range-check'
     system "./configure", "--disable-debug", "--disable-dependency-tracking",

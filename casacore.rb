@@ -13,6 +13,7 @@ class Casacore < Formula
   depends_on 'hdf5'
   depends_on 'readline'
   depends_on 'casacore-data'
+  depends_on :fortran
 
   if not build.head?
     # This CMake compiler detection issue is fixed in HEAD
@@ -25,7 +26,6 @@ class Casacore < Formula
   end
 
   def install
-    ENV.fortran
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = 'release'
     mkdir_p "build/#{build_type}"

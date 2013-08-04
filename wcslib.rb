@@ -9,10 +9,10 @@ class Wcslib < Formula
 
   depends_on 'cfitsio'
   depends_on 'pgplot'
+  depends_on :fortran
 
   def install
-    ENV.fortran
-    ENV.j1
+    ENV.deparallelize
     system "./configure", "--prefix=#{prefix}",
     "--with-cfitsiolib=#{HOMEBREW_PREFIX}/lib", "--with-cfitsioinc=#{HOMEBREW_PREFIX}/include",
     "--with-pgplotlib=#{HOMEBREW_PREFIX}/lib", "--with-pgplotinc=#{HOMEBREW_PREFIX}/include"

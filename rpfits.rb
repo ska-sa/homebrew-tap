@@ -5,9 +5,10 @@ class Rpfits < Formula
   homepage 'http://www.atnf.csiro.au/computing/software/rpfits.html'
   sha1 '16e4b14ea6cbdeedbc7f47adec3ff2b0aec621de'
 
+  depends_on :fortran
+
   def install
-    ENV.j1
-    ENV.fortran
+    ENV.deparallelize
     ENV['RPARCH'] = "darwin"
     system "make -f GNUmakefile"
     lib.install ['librpfits.a']
