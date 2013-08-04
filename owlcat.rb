@@ -4,7 +4,8 @@ class Owlcat < Formula
   homepage 'http://www.astron.nl/meqwiki-data/users/oms/Owlcat-plotms-tutorial.purrlog/'
 # Waiting for next release after 1.2.0 to be supported on Mac
 #  url 'https://svn.astron.nl/Owlcat/release/Owlcat/release-1.2.0'
-  head 'https://svn.astron.nl/Owlcat/trunk/Owlcat'
+  # Repository after 8761 contains both Pyxis dir and pyxis script which clash on HFS+
+  head 'https://svn.astron.nl/Owlcat/trunk/Owlcat', :revision => '8761'
 
   depends_on :python => ['pyfits', 'numpy', 'matplotlib']
   depends_on 'pyrap'
