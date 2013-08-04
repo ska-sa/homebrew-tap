@@ -32,6 +32,7 @@ class Obit < Formula
   depends_on 'xmlrpc-c'
   depends_on 'boost'
   depends_on 'libair'
+  depends_on :python
 
   def patches
     # Build main Obit library as shared dylib
@@ -58,8 +59,8 @@ class Obit < Formula
     prefix.install 'bin'
     prefix.install 'include'
     lib.install Dir['lib/libObit.dylib*']
-    mkdir_p "#{lib}/#{which_python}/site-packages"
-    cp_r 'python/build/site-packages', "#{lib}/#{which_python}/"
+    mkdir_p "#{python.site_packages}"
+    cp_r 'python/build/site-packages', "#{python.site_packages}/../"
     mkdir_p "#{share}/obit"
     cp_r ['share/data', 'share/scripts', 'TDF'], "#{share}/obit"
     mv 'testData', "#{share}/obit/data/test"
@@ -76,15 +77,15 @@ class Obit < Formula
       inreplace 'Makefile.in', ' doc', ''
       opoo 'No TeX installation found - documentation will not be built (please install MacTeX first if you want docs)'
     end
-    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
-    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages"
-    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{which_python}/site-packages"
-    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
-    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{which_python}/site-packages"
+    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{python.global_site_packages}"
+    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{python.global_site_packages}"
+    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{python.xy}/site-packages"
+    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python.xy}/site-packages"
+    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python.xy}/site-packages"
     inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/tdf', "#{share}/obit/TDF"
     inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/bin', "#{bin}"
     inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
-    system './configure', "PYTHONPATH=#{lib}/#{which_python}/site-packages:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
+    system './configure', "PYTHONPATH=#{python.site_packages}:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
            "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
@@ -99,12 +100,8 @@ class Obit < Formula
 
   def caveats; <<-EOS.undent
     For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages:$PYTHONPATH
+      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
     EOS
-  end
-
-  def which_python
-    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
   end
 
   def test

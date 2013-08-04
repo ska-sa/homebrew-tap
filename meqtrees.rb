@@ -21,9 +21,7 @@ class Meqtrees < Formula
   depends_on 'blitz'
   depends_on 'qdbm'
   depends_on 'pyqwt'
-  depends_on 'numpy' => :python
-  depends_on 'pyfits' => :python
-  depends_on 'PIL' => :python
+  depends_on :python => ['numpy', 'pyfits', 'PIL']
   # The following packages are strictly optional but by including them
   # it is easy to install the whole MeqTrees suite in one go
   # (and it allows testing the whole suite via Batchtest)
@@ -107,10 +105,10 @@ class Meqtrees < Formula
     end
 
     cd '../libexec/python/Timba'
-    timba = "#{lib}/#{which_python}/site-packages/Timba"
+    timba = "#{python.site_packages}/Timba"
     mkdir_p timba
     # Create DLFCN.py for our system
-    quiet_system 'python ../../../../../Tools/Build/h2py.py /usr/include/dlfcn.h'
+    quiet_system python, '../../../../../Tools/Build/h2py.py /usr/include/dlfcn.h'
     Dir.foreach('.') do |item|
       next if ['.', '..'].include? item
       # Preserve local links but dereference proper links
@@ -148,11 +146,7 @@ class Meqtrees < Formula
 
   def caveats; <<-EOS.undent
     For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages:$PYTHONPATH
+      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
     EOS
-  end
-
-  def which_python
-    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
   end
 end

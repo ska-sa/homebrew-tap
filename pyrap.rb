@@ -9,6 +9,7 @@ class Pyrap < Formula
   depends_on 'scons' => :build
   depends_on 'boost'
   depends_on 'casacore'
+  depends_on :python => ['numpy']
 
   def patches
     p = []
@@ -30,14 +31,13 @@ class Pyrap < Formula
     else
       build_cmd = 'batchbuild.py'
     end
-    python_prefix = "#{lib}/#{which_python}/site-packages"
-    system "python", "#{build_cmd}",
+    system python, "#{build_cmd}",
            "--boost-root=#{HOMEBREW_PREFIX}", "--boost-lib=boost_python-mt",
            "--enable-hdf5", "--prefix=#{prefix}",
-           "--python-prefix=#{python_prefix}",
+           "--python-prefix=#{python.site_packages}",
            "--universal=x86_64"
     # Get rid of horrible eggs as they trample on other packages via site.py and easy-install.pth
-    cd "#{python_prefix}"
+    cd "#{python.site_packages}"
     rm_f ['easy-install.pth', 'site.py', 'site.pyc']
     mkdir 'pyrap'
     touch 'pyrap/__init__.py'
@@ -52,11 +52,7 @@ class Pyrap < Formula
   
   def caveats; <<-EOS.undent
     For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages:$PYTHONPATH
+      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
     EOS
   end
-  
-  def which_python
-    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
-  end  
 end

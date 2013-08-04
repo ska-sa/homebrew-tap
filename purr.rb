@@ -5,8 +5,8 @@ class Purr < Formula
   url 'https://svn.astron.nl/Purr/release/Purr/release-1.2.0'
   head 'https://svn.astron.nl/Purr/trunk/Purr'
 
+  depends_on :python => ['pyfits']
   depends_on 'pyqt'
-  depends_on 'pyfits' => :python
 
   def patches
     p = []
@@ -21,24 +21,20 @@ class Purr < Formula
 
   def install
     bin.install 'Purr/purr.py', 'Purr/purr'
-    mkdir_p "#{lib}/#{which_python}/site-packages"
-    cp_r ['Purr', 'Kittens'], "#{lib}/#{which_python}/site-packages/"
+    mkdir_p "#{python.site_packages}"
+    cp_r ['Purr', 'Kittens'], "#{python.site_packages}/"
     mkdir_p "#{share}/meqtrees"
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
   def caveats; <<-EOS.undent
     For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages:$PYTHONPATH
+      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
     EOS
   end
 
-  def which_python
-    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
-  end
-
   def test
-    if system 'python -c "import Purr"' then
+    if system python, '-c "import Purr"' then
       onoe 'Purr FAILED'
     else
       ohai 'Purr OK'

@@ -5,12 +5,9 @@ class Tigger < Formula
   url 'https://svn.astron.nl/Tigger/release/Tigger/release-1.2.2'
   head 'https://svn.astron.nl/Tigger/trunk/Tigger'
 
+  depends_on :python => ['pyfits', 'numpy', 'scipy', 'astLib']
   depends_on 'pyqwt'
   depends_on 'purr'
-  depends_on 'pyfits' => :python
-  depends_on 'numpy' => :python
-  depends_on 'scipy' => :python
-  depends_on 'astLib' => :python
 
   def patches
     p = []
@@ -25,7 +22,7 @@ class Tigger < Formula
   end
 
   def install
-    tigger = "#{lib}/#{which_python}/site-packages/Tigger"
+    tigger = "#{python.site_packages}/Tigger"
     mkdir_p ["#{tigger}", "#{share}/doc", "#{share}/meqtrees"]
     cp_r '.', "#{tigger}/"
     rm_rf ["#{tigger}/bin", "#{tigger}/doc", "#{tigger}/icons"]
@@ -38,16 +35,12 @@ class Tigger < Formula
 
   def caveats; <<-EOS.undent
     For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{HOMEBREW_PREFIX}/lib/#{which_python}/site-packages:$PYTHONPATH
+      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
     EOS
   end
 
-  def which_python
-    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
-  end
-
   def test
-    if system 'python -c "import Tigger"' then
+    if system python, '-c "import Tigger"' then
       onoe 'Tigger FAILED'
     else
       ohai 'Tigger OK'
