@@ -31,6 +31,8 @@ class Casarest < Formula
   end
 
   def install
+    # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
+    ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
     mkdir_p 'build'
     cd 'build'
     cmake_args = std_cmake_args

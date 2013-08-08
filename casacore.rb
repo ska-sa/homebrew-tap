@@ -26,6 +26,9 @@ class Casacore < Formula
   end
 
   def install
+    # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
+    ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
+
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = 'release'
     mkdir_p "build/#{build_type}"

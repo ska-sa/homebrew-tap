@@ -20,6 +20,8 @@ class Bnmin1 < Formula
     ENV.deparallelize
     # Avoid arithmetic overflow in pda_d1mach.f
     ENV['FFLAGS'] = '-fno-range-check'
+    # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
+    ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}", "--enable-static"
     system "make install"
