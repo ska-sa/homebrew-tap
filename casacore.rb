@@ -38,7 +38,7 @@ class Casacore < Formula
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << '-DUSE_FFTW3=ON' << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << '-DUSE_HDF5=ON' << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
-    cmake_args << '-DUSE_THREADS=ON' << '-DDATA_DIR=/usr/local/share/casacore/data'
+    cmake_args << '-DUSE_THREADS=ON' << "-DDATA_DIR=#{HOMEBREW_PREFIX}/share/casacore/data"
     system 'cmake', '../..', *cmake_args
     system "make install"
   end
