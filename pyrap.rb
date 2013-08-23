@@ -49,10 +49,8 @@ class Pyrap < Formula
       rm_rf egg
     end
   end
-  
-  def caveats; <<-EOS.undent
-    For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
-    EOS
+
+  def caveats
+    python.standard_caveats if python
   end
 end

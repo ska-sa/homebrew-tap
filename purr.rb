@@ -27,10 +27,8 @@ class Purr < Formula
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
-  def caveats; <<-EOS.undent
-    For non-homebrew Python, you need to amend your PYTHONPATH like so:
-      export PYTHONPATH=#{python.global_site_packages}:$PYTHONPATH
-    EOS
+  def caveats
+    python.standard_caveats if python
   end
 
   def test
