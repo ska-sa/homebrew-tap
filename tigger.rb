@@ -38,7 +38,7 @@ class Tigger < Formula
   end
 
   def test
-    if system python, '-c "import Tigger"' then
+    if system "#{python} -c 'import Tigger'" then
       onoe 'Tigger FAILED'
     else
       ohai 'Tigger OK'

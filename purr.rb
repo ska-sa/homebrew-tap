@@ -32,7 +32,7 @@ class Purr < Formula
   end
 
   def test
-    if system python, '-c "import Purr"' then
+    if system "#{python} -c 'import Purr'" then
       onoe 'Purr FAILED'
     else
       ohai 'Purr OK'
