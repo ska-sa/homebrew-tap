@@ -23,8 +23,4 @@ class Owlcat < Formula
     doc.install 'tutorial/Owlcat-plotms-tutorial.purrlog'
     doc.install 'README', 'imager.conf.example', 'owlcat-logo.jpg'
   end
-
-  def caveats
-    python.standard_caveats if python
-  end
 end

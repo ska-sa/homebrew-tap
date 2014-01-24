@@ -27,10 +27,6 @@ class Purr < Formula
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
-  def caveats
-    python.standard_caveats if python
-  end
-
   def test
     if system "#{python} -c 'import Purr'" then
       onoe 'Purr FAILED'

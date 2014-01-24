@@ -20,10 +20,6 @@ class Leo < Formula
     ln_s "#{bin}/launchLeo.py", "#{bin}/leo"
   end
 
-  def caveats
-    python.standard_caveats if python
-  end
-
   test do
     if system "#{python} -c 'import leo'" then
       onoe 'Leo FAILED'

@@ -97,10 +97,6 @@ class Obit < Formula
     system 'make', 'install', "prefix=#{prefix}"
   end
 
-  def caveats
-    python.standard_caveats if python
-  end
-
   def test
     mktemp do
       cp_r "#{share}/obit/data/test", 'data'

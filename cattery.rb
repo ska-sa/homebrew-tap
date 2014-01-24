@@ -19,8 +19,4 @@ class Cattery < Formula
     mkdir_p "#{share}/meqtrees"
     cp_r 'test', "#{share}/meqtrees/"
   end
-
-  def caveats
-    python.standard_caveats if python
-  end
 end

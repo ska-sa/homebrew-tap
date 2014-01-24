@@ -49,8 +49,4 @@ class Pyrap < Formula
       rm_rf egg
     end
   end
-
-  def caveats
-    python.standard_caveats if python
-  end
 end

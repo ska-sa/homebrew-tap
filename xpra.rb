@@ -20,7 +20,7 @@ class Xpra < Formula
   depends_on 'ffmpeg'
   depends_on 'libvpx'
   depends_on 'webp'
-  depends_on 'Cython' => :python
+  depends_on 'cython' => :python
 
   def patches
     # Do not depend on gtkosx_application / gtk-mac-integration library,
@@ -34,10 +34,6 @@ class Xpra < Formula
     python do
       system python, "setup.py", "install", "--prefix=#{prefix}"
     end
-  end
-
-  def caveats
-    python.standard_caveats if python
   end
 end
 
