@@ -2,8 +2,8 @@ require 'formula'
 
 class Xpra < Formula
   homepage 'http://xpra.org'
-  url 'http://winswitch.org/src/xpra-0.10.9.tar.bz2'
-  sha1 '1fe8113242143d51f492502e1d0c7441c34cbf23'
+  url 'http://winswitch.org/src/xpra-0.11.3.tar.bz2'
+  sha1 '2bc108fe3082d4a1f04f658492d8a5b5e590c21a'
   head 'http://xpra.org/svn/Xpra/trunk/src/', :using => :svn
 
   # We want pkg-config
@@ -11,6 +11,7 @@ class Xpra < Formula
 
   # PyObjC is used for AppKit - install core first to avoid recompilation
   # PyOpenGL is only required if pygtkglext is to be used
+  depends_on :python
   depends_on :python => ['objc' => 'pyobjc']
   depends_on :python => ['OpenGL' => 'pyopengl']
   depends_on :python => ['OpenGL_accelerate' => 'pyopengl-accelerate']
@@ -32,7 +33,7 @@ class Xpra < Formula
 
   def install
     python do
-      system python, "setup.py", "install", "--prefix=#{prefix}"
+      system "python", "setup.py", "install", "--prefix=#{prefix}"
     end
   end
 end
