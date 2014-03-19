@@ -12,6 +12,7 @@ class Libair < Formula
   def patches
     # Patch 1: Allow the use of SWIG 2.x for Python bindings
     # Patch 2: Fix C++ implicit instantiation error
+    # Patch 3: Fix const problem with comparison operator
     DATA
   end
 
@@ -56,3 +57,17 @@ index a8d1d3d..fc792c7 100644
    void WaterModel<ICloudyWater>::dTdTau (std::vector<double> &res) const
    {
 
+
+diff --git a/src/radiometer_utils.cpp b/src/radiometer_utils.cpp
+index 9a995d0..6e83060 100644
+--- a/src/radiometer_utils.cpp
++++ b/src/radiometer_utils.cpp
+@@ -38,7 +38,7 @@ namespace LibAIR {
+       return ( f_i == f_end  );
+     }
+ 
+-    bool operator< (  const RadioIter & other )
++    bool operator< (  const RadioIter & other ) const
+     {
+       if (atend())
+       {
