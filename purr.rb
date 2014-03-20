@@ -5,7 +5,8 @@ class Purr < Formula
   url 'https://svn.astron.nl/Purr/release/Purr/release-1.2.0'
   head 'https://svn.astron.nl/Purr/trunk/Purr'
 
-  depends_on :python => ['pyfits']
+  depends_on :python
+  depends_on 'pyfits' => :python
   depends_on 'pyqt'
 
   def patches
@@ -20,15 +21,18 @@ class Purr < Formula
   end
 
   def install
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_site_packages = lib + "#{python_xy}/site-packages"
     bin.install 'Purr/purr.py', 'Purr/purr'
-    mkdir_p "#{python.site_packages}"
-    cp_r ['Purr', 'Kittens'], "#{python.site_packages}/"
+    mkdir_p "#{python_site_packages}"
+    cp_r ['Purr', 'Kittens'], "#{python_site_packages}/"
     mkdir_p "#{share}/meqtrees"
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
   def test
-    if system "#{python} -c 'import Purr'" then
+    if system "python -c 'import Purr'" then
       onoe 'Purr FAILED'
     else
       ohai 'Purr OK'

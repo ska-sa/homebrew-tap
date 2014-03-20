@@ -10,18 +10,20 @@ class Leo < Formula
     sha1 '435c023df4d7b378ba10594a4b46ca83e82fc6b2'
   end
 
-  depends_on :python
   depends_on 'pyqt'
   depends_on 'enchant' => :recommended
 
   def install
-    python.site_packages.install 'leo'
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_site_packages = lib + "#{python_xy}/site-packages"
+    python_site_packages.install 'leo'
     bin.install ['launchLeo.py', 'profileLeo.py']
     ln_s "#{bin}/launchLeo.py", "#{bin}/leo"
   end
 
   test do
-    if system "#{python} -c 'import leo'" then
+    if system "python -c 'import leo'" then
       onoe 'Leo FAILED'
     else
       ohai 'Leo OK'

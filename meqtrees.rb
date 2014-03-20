@@ -21,7 +21,10 @@ class Meqtrees < Formula
   depends_on 'blitz'
   depends_on 'qdbm'
   depends_on 'pyqwt'
-  depends_on :python => ['numpy', 'pyfits', 'PIL']
+  depends_on :python
+  depends_on 'numpy' => :python
+  depends_on 'pyfits' => :python
+  depends_on 'PIL' => :python
   # The following packages are strictly optional but by including them
   # it is easy to install the whole MeqTrees suite in one go
   # (and it allows testing the whole suite via Batchtest)
@@ -60,6 +63,9 @@ class Meqtrees < Formula
   end
 
   def install
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_site_packages = lib + "#{python_xy}/site-packages"
     # If semi-standard Python script not included in MeqTrees repository, download it (Python version 2.7)
     if not File.exists? 'Tools/Build/h2py.py'
       system 'curl -o Tools/Build/h2py.py http://hg.python.org/cpython/raw-file/1cfe0f50fd0c/Tools/scripts/h2py.py'
@@ -105,10 +111,10 @@ class Meqtrees < Formula
     end
 
     cd '../libexec/python/Timba'
-    timba = "#{python.site_packages}/Timba"
+    timba = "#{python_site_packages}/Timba"
     mkdir_p timba
     # Create DLFCN.py for our system
-    quiet_system python, '../../../../../Tools/Build/h2py.py /usr/include/dlfcn.h'
+    quiet_system 'python', '../../../../../Tools/Build/h2py.py /usr/include/dlfcn.h'
     Dir.foreach('.') do |item|
       next if ['.', '..'].include? item
       # Preserve local links but dereference proper links

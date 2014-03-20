@@ -9,7 +9,8 @@ class Pyrap < Formula
   depends_on 'scons' => :build
   depends_on 'boost'
   depends_on 'casacore'
-  depends_on :python => ['numpy']
+  depends_on :python
+  depends_on 'numpy' => :python
 
   def patches
     p = []
@@ -31,13 +32,16 @@ class Pyrap < Formula
     else
       build_cmd = 'batchbuild.py'
     end
-    system python, "#{build_cmd}",
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_site_packages = lib + "#{python_xy}/site-packages"
+    system "python", "#{build_cmd}",
            "--boost-root=#{HOMEBREW_PREFIX}", "--boost-lib=boost_python-mt",
            "--enable-hdf5", "--prefix=#{prefix}",
-           "--python-prefix=#{python.site_packages}",
+           "--python-prefix=#{python_site_packages}",
            "--universal=x86_64"
     # Get rid of horrible eggs as they trample on other packages via site.py and easy-install.pth
-    cd "#{python.site_packages}"
+    cd "#{python_site_packages}"
     rm_f ['easy-install.pth', 'site.py', 'site.pyc']
     mkdir 'pyrap'
     touch 'pyrap/__init__.py'

@@ -5,7 +5,11 @@ class Tigger < Formula
   url 'https://svn.astron.nl/Tigger/release/Tigger/release-1.2.2'
   head 'https://svn.astron.nl/Tigger/trunk/Tigger'
 
-  depends_on :python => ['pyfits', 'numpy', 'scipy', 'astLib']
+  depends_on :python
+  depends_on 'pyfits' => :python
+  depends_on 'numpy' => :python
+  depends_on 'scipy' => :python
+  depends_on 'astLib' => :python
   depends_on 'pyqwt'
   depends_on 'purr'
 
@@ -22,7 +26,10 @@ class Tigger < Formula
   end
 
   def install
-    tigger = "#{python.site_packages}/Tigger"
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_site_packages = lib + "#{python_xy}/site-packages"
+    tigger = "#{python_site_packages}/Tigger"
     mkdir_p ["#{tigger}", "#{share}/doc", "#{share}/meqtrees"]
     cp_r '.', "#{tigger}/"
     rm_rf ["#{tigger}/bin", "#{tigger}/doc", "#{tigger}/icons"]
@@ -34,7 +41,7 @@ class Tigger < Formula
   end
 
   def test
-    if system "#{python} -c 'import Tigger'" then
+    if system "python -c 'import Tigger'" then
       onoe 'Tigger FAILED'
     else
       ohai 'Tigger OK'

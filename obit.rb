@@ -32,7 +32,6 @@ class Obit < Formula
   depends_on 'xmlrpc-c'
   depends_on 'boost'
   depends_on 'libair'
-  depends_on :python
   depends_on :fortran
 
   def patches
@@ -44,6 +43,11 @@ class Obit < Formula
   end
 
   def install
+    # Obtain information on Python installation
+    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    site_packages = lib + "#{python_xy}/site-packages"
+    global_site_packages = HOMEBREW_PREFIX/"lib/#{python_xy}/site-packages"
+
     ohai 'Building and installing main Obit package'
     ohai '-----------------------------------------'
     cd 'Obit'
@@ -58,8 +62,8 @@ class Obit < Formula
     prefix.install 'bin'
     prefix.install 'include'
     lib.install Dir['lib/libObit.dylib*']
-    mkdir_p "#{python.site_packages}"
-    cp_r 'python/build/site-packages', "#{python.site_packages}/../"
+    mkdir_p "#{site_packages}"
+    cp_r 'python/build/site-packages', "#{site_packages}/../"
     mkdir_p "#{share}/obit"
     cp_r ['share/data', 'share/scripts', 'TDF'], "#{share}/obit"
     mv 'testData', "#{share}/obit/data/test"
@@ -76,15 +80,15 @@ class Obit < Formula
       inreplace 'Makefile.in', ' doc', ''
       opoo 'No TeX installation found - documentation will not be built (please install MacTeX first if you want docs)'
     end
-    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{python.global_site_packages}"
-    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{python.global_site_packages}"
-    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{python.xy}/site-packages"
-    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python.xy}/site-packages"
-    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python.xy}/site-packages"
+    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{global_site_packages}"
+    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{global_site_packages}"
+    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{python_xy}/site-packages"
+    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python_xy}/site-packages"
+    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python_xy}/site-packages"
     inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/tdf', "#{share}/obit/TDF"
     inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/bin', "#{bin}"
     inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
-    system './configure', "PYTHONPATH=#{python.site_packages}:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
+    system './configure', "PYTHONPATH=#{site_packages}:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
            "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"

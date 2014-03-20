@@ -9,12 +9,13 @@ class Xpra < Formula
   # We want pkg-config
   env :userpaths
 
+  depends_on :python
+  depends_on 'Cython' => :python
   # PyObjC is used for AppKit - install core first to avoid recompilation
+  depends_on 'objc' => :python
   # PyOpenGL is only required if pygtkglext is to be used
-  depends_on :python => ['Cython' => 'cython']
-  depends_on :python => ['objc' => 'pyobjc']
-  depends_on :python => ['OpenGL' => 'pyopengl']
-  depends_on :python => ['OpenGL_accelerate' => 'pyopengl-accelerate']
+  depends_on 'OpenGL' => :python if build.with? 'pygtkglext'
+  depends_on 'OpenGL_accelerate' => :python if build.with? 'pygtkglext'
   depends_on :x11
   depends_on 'pygtk'
   depends_on 'pygtkglext' => :recommended
@@ -31,9 +32,7 @@ class Xpra < Formula
   end
 
   def install
-    python do
-      system python, "setup.py", "install", "--prefix=#{prefix}"
-    end
+    system "python", "setup.py", "install", "--prefix=#{prefix}"
   end
 end
 
