@@ -43,10 +43,12 @@ class Obit < Formula
   end
 
   def install
-    # Obtain information on Python installation
+    # Obtain information on Python and X11 installations
     python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
     site_packages = lib + "#{python_xy}/site-packages"
     global_site_packages = HOMEBREW_PREFIX/"lib/#{python_xy}/site-packages"
+    x11_inc = %x(bash -c 'PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --cflags').chomp
+    x11_lib = %x(bash -c 'PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --libs').chomp
 
     ohai 'Building and installing main Obit package'
     ohai '-----------------------------------------'
@@ -96,7 +98,7 @@ class Obit < Formula
     ohai 'Building and installing ObitView package'
     ohai '----------------------------------------'
     cd '../ObitView'
-    system './configure', 'LDFLAGS=-L/usr/X11/lib', "--with-obit=#{prefix}", "--prefix=#{prefix}"
+    system './configure', "CFLAGS=#{x11_inc}", "LDFLAGS=#{x11_lib}", "--with-obit=#{prefix}", "--prefix=#{prefix}"
     system 'make'
     system 'make', 'install', "prefix=#{prefix}"
   end
