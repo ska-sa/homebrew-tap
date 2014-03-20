@@ -18,7 +18,7 @@ class Casacore < Formula
   if not build.head?
     # This CMake compiler detection issue is fixed in HEAD
     fails_with :clang do
-      build 425
+      build 503
       cause <<-EOS.undent
         CMake reports: Don't know how to enable thread support for /usr/bin/clang
         EOS
@@ -28,6 +28,8 @@ class Casacore < Formula
   def install
     # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
     ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
+    # Force clang to use the old standard library for now (solves issue with complex type)
+    ENV.append 'CXXFLAGS', "-stdlib=libstdc++" if ENV.compiler == :clang
 
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = 'release'
