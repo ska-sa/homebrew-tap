@@ -12,6 +12,7 @@ class Xpra < Formula
   depends_on :python
   depends_on 'Cython' => :python
   # PyObjC is used for AppKit - install core first to avoid recompilation
+  depends_on 'pyobjc-core' => :python
   depends_on 'pyobjc' => :python
   # PyOpenGL is only required if pygtkglext is to be used
   depends_on 'OpenGL' => :python if build.with? 'pygtkglext'
@@ -22,6 +23,7 @@ class Xpra < Formula
   depends_on 'ffmpeg'
   depends_on 'libvpx'
   depends_on 'webp'
+  depends_on 'xz'
 
   def patches
     # Do not depend on gtkosx_application / gtk-mac-integration library,
