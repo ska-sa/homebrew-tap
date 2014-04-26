@@ -15,8 +15,8 @@ class Xpra < Formula
   depends_on 'pyobjc-core' => :python
   depends_on 'pyobjc' => :python
   # PyOpenGL is only required if pygtkglext is to be used
-  depends_on 'OpenGL' => :python if build.with? 'pygtkglext'
-  depends_on 'OpenGL_accelerate' => :python if build.with? 'pygtkglext'
+  depends_on 'PyOpenGL' => :python if build.with? 'pygtkglext'
+  depends_on 'PyOpenGL_accelerate' => :python if build.with? 'pygtkglext'
   depends_on :x11
   depends_on 'pygtk'
   depends_on 'pygtkglext' => :recommended
