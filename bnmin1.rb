@@ -13,6 +13,7 @@ class Bnmin1 < Formula
   def patches
     # Patch 1: Allow the use of SWIG 2.x for Python bindings
     # Patch 2: Fix naming of static library
+    # Patch 3: Make fprior_t struct public as it is referenced in public priorlist_t
     DATA
   end
 
@@ -58,3 +59,23 @@ index 792bc60..f0f6f91 100644
 +Libs:  -L${libdir} -lbnmin1
  Cflags: -I${includedir} 
 
+diff --git a/src/priors.hxx b/src/priors.hxx
+index 424c9c2..0ebdff0 100644
+--- a/src/priors.hxx
++++ b/src/priors.hxx
+@@ -89,6 +89,7 @@ namespace Minim {
+ 
+     std::vector< Minim::DParamCtr > _mpars;
+     
++  public:
+     struct fprior_t
+     {
+       const double * p;
+@@ -96,7 +97,6 @@ namespace Minim {
+       double pmax;
+     };
+     
+-  public:
+     typedef std::list<fprior_t> priorlist_t;
+ 
+   private:
