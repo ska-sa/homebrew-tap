@@ -2,8 +2,8 @@ require 'formula'
 
 class Casacore < Formula
   homepage 'http://code.google.com/p/casacore/'
-  url 'http://casacore.googlecode.com/files/casacore-1.5.0.tar.bz2'
-  sha1 'dca7a451c02b141b9e338ba4ffa713693693ce42'
+  url 'ftp://ftp.atnf.csiro.au/pub/software/casacore/casacore-1.7.0.tar.bz2'
+  sha1 '03edc1c8b8c3fbee91df4f9874f5db7b9d403035'
   head 'http://casacore.googlecode.com/svn/trunk'
 
   depends_on 'cmake' => :build
@@ -14,16 +14,6 @@ class Casacore < Formula
   depends_on 'readline'
   depends_on 'casacore-data'
   depends_on :fortran
-
-  if not build.head?
-    # This CMake compiler detection issue is fixed in HEAD
-    fails_with :clang do
-      build 503
-      cause <<-EOS.undent
-        CMake reports: Don't know how to enable thread support for /usr/bin/clang
-        EOS
-    end
-  end
 
   def install
     # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
