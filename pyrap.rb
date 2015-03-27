@@ -7,23 +7,60 @@ class Pyrap < Formula
   head 'http://pyrap.googlecode.com/svn/trunk'
 
   depends_on 'scons' => :build
-  depends_on 'boost'
+  depends_on 'boost-python'
   depends_on 'casacore'
   depends_on :python
   depends_on 'numpy' => :python
 
-  def patches
-    p = []
-    # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/da9264e50c244b84cd92e180b207e13928f7ff93/patch1.diff'
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/c0981d0c27b3086cb7378cf4442b2754abc8a42d/patch2.diff' if build.head?
-    # Patch to ignore fortran to c library (aka libgfortran)
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/0bda200fb5c8f743c488077e94195c786ecb2486/patch3.diff'
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/5bdd5e6ab42e9551750128c441a775dffaa3feea/patch4.diff' if build.head?
+  # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
+  patch do
+    url 'https://gist.github.com/ludwigschwardt/5195760/raw/da9264e50c244b84cd92e180b207e13928f7ff93/patch1.diff'
+    sha256 'aa4ccbf03fce7a136bbeda47c625fe0e61d119a3aa1ef3315ce86ae2a0aa8fa7'
+  end
+  # Patch to ignore fortran to c library (aka libgfortran)
+  patch do
+    url 'https://gist.github.com/ludwigschwardt/5195760/raw/0bda200fb5c8f743c488077e94195c786ecb2486/patch3.diff'
+    sha256 '3ffb0226a509633eec1adcdae4f2e60c5013b6524a02ba4b506e0f6c784154d0'
+  end
+
+  stable do
     # Patch to disable explicit linking to system Python framework in order to support brew Python (and other non-system versions)
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/0dbf63fba7b4caed537c84eb26c42afc7db0ec23/patch5.diff' if not build.head?
-    p << 'https://gist.github.com/ludwigschwardt/5195760/raw/a270c600a5870523192a791c6a4459bbddc293b3/patch6.diff' if build.head?
-    return p.empty? ? nil : p
+    patch do
+      url 'https://gist.github.com/ludwigschwardt/5195760/raw/0dbf63fba7b4caed537c84eb26c42afc7db0ec23/patch5.diff'
+    end
+  end
+
+  head do
+    # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
+    patch do
+      url 'https://gist.github.com/ludwigschwardt/5195760/raw/c0981d0c27b3086cb7378cf4442b2754abc8a42d/patch2.diff'
+      sha256 '2d5f315ffdbbcab7ae428e7418a22fe89b8067e09e5ea3cee250fa28b253a1c9'
+    end
+    # Patch to ignore fortran to c library (aka libgfortran)
+    patch do
+      url 'https://gist.github.com/ludwigschwardt/5195760/raw/5bdd5e6ab42e9551750128c441a775dffaa3feea/patch4.diff'
+      sha256 '8bb39b4d9436818a6b579a9d536b849d4417b553dbe686c6b455e54d52a88c89'
+    end
+    # Patch to disable explicit linking to system Python framework in order to support brew Python (and other non-system versions)
+    patch do
+      url 'https://gist.github.com/ludwigschwardt/5195760/raw/a270c600a5870523192a791c6a4459bbddc293b3/patch6.diff'
+      sha256 'c204c14f0864d3cc7668354b0129c6f70b9ad6630543b688a75a499eca85d6af'
+    end
+    # Fix C++11 issue (space between string and literal)
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/e13d6971f7647591572a9a0faf7e393f032cb488/patch7.diff"
+      sha256 '6ea089c5d7ba59b6f2e535929304d14ba26d12ffcc205c3c5a51c3b849d15ec3'
+    end
+    # Enable C++11 both for libpyrap and the python extensions for clang
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/3e32d83f58a4abdd15d7530583a659feaa39c15a/patch8.diff"
+      sha256 "e7781da938d509809e62f40dace1361ad2b6de43f452c51f5e259932bc504936"
+    end
+    # CASA components library has been dropped from 2.0.0
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/ecfe7c62cab531599b096e6e9db962468735d203/patch9.diff"
+      sha256 "2f0111c117b5c715843e5559dba8ed4779123ce7550d47d3e8c81469e126fa31"
+    end
   end
 
   def install
