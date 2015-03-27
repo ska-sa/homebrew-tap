@@ -16,11 +16,6 @@ class Casacore < Formula
   depends_on :fortran
 
   def install
-    # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
-    ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
-    # Force clang to use the old standard library for now (solves issue with complex type)
-    ENV.append 'CXXFLAGS', "-stdlib=libstdc++" if ENV.compiler == :clang
-
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = 'release'
     mkdir_p "build/#{build_type}"
@@ -28,6 +23,7 @@ class Casacore < Formula
     cmake_args = std_cmake_args
     cmake_args.delete '-DCMAKE_BUILD_TYPE=None'
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
+    cmake_args << "-DCXX11=ON" if ENV.compiler == :clang
     cmake_args << '-DUSE_FFTW3=ON' << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << '-DUSE_HDF5=ON' << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << '-DUSE_THREADS=ON' << "-DDATA_DIR=#{HOMEBREW_PREFIX}/share/casacore/data"
