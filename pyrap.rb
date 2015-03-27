@@ -3,7 +3,7 @@ require 'formula'
 class Pyrap < Formula
   homepage 'http://code.google.com/p/pyrap/'
   url 'http://pyrap.googlecode.com/files/pyrap-1.1.0.tar.bz2'
-  sha1 '8901071b09f747f0a210f180f91869e020c9d081'
+  sha256 "4ca7fa080d31de64680a78425f0ea02f36a1d8f019febf7e595234055e7e2d54"
   head 'http://pyrap.googlecode.com/svn/trunk'
 
   depends_on 'scons' => :build
@@ -27,6 +27,22 @@ class Pyrap < Formula
     # Patch to disable explicit linking to system Python framework in order to support brew Python (and other non-system versions)
     patch do
       url 'https://gist.github.com/ludwigschwardt/5195760/raw/0dbf63fba7b4caed537c84eb26c42afc7db0ec23/patch5.diff'
+      sha256 "8f8b78809b42bfe3e49f1be02be69f604c71e51af57ac9329c5901daa089b7c7"
+    end
+    # Fix C++11 issue (space between string and literal)
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/296b0ec87ceffc5a006138a0e9263cd97b553897/patch10.diff"
+      sha256 "707744a2c115171a85ea882982a21775c569056f996fad6c11f2821dddbaba84"
+    end
+    # Enable C++11 both for libpyrap and the python extensions for clang
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/c8fc9ce1a65d7e198a2013d1a828fae738fa147e/patch11.diff"
+      sha256 "a89e080babe6e63222d0898f6c75276530afbd9efc7767dfebf037b4e903d393"
+    end
+    # CASA components library has been dropped from 2.0.0
+    patch do
+      url "https://gist.github.com/ludwigschwardt/5195760/raw/11b648371df7d17f1264ef67d7b782eaa31bef54/patch12.diff"
+      sha256 "5b1291336822107f007db99ea4804e32cb7e71ccc68758134ac69453f8457bfe"
     end
   end
 
