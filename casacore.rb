@@ -27,11 +27,6 @@ class Casacore < Formula
   depends_on 'casacore-data'
   depends_on :fortran
 
-  devel do
-    # Fix install bug
-    patch :DATA
-  end
-
   def install
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = 'release'
@@ -54,29 +49,3 @@ class Casacore < Formula
     end
   end
 end
-
-__END__
-diff --git a/ms/CMakeLists.txt b/ms/CMakeLists.txt
-index 260095d..e7000e6 100644
---- a/ms/CMakeLists.txt
-+++ b/ms/CMakeLists.txt
-@@ -195,7 +195,6 @@ MeasurementSets/MSMainColumns.h
- MeasurementSets/MSMainEnums.h
- MeasurementSets/MSObsColumns.h
- MeasurementSets/MSObsEnums.h
--MeasurementSets/MSObsIndex.h
- MeasurementSets/MSObservation.h
- MeasurementSets/MSPointing.h
- MeasurementSets/MSPointingColumns.h
-@@ -223,11 +222,9 @@ MeasurementSets/MSTable.h
- MeasurementSets/MSTable.tcc
- MeasurementSets/MSTableImpl.h
- MeasurementSets/MSTileLayout.h
--MeasurementSets/MSTimeDefinitions.h
- MeasurementSets/MSWeather.h
- MeasurementSets/MSWeatherColumns.h
- MeasurementSets/MSWeatherEnums.h
--MeasurementSets/MSWeatherIndex.h
- MeasurementSets/MeasurementSet.h
- MeasurementSets/StokesConverter.h
- DESTINATION include/casacore/ms/MeasurementSets
