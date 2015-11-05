@@ -9,7 +9,10 @@ class Casacore < Formula
 
   depends_on "cmake" => :build
   depends_on "cfitsio"
-  depends_on "wcslib"
+  depends_on "homebrew/science/wcslib"
+  depends_on "python" => :recommended
+  depends_on "boost-python"
+  depends_on "homebrew/python/numpy"
   depends_on "fftw"
   depends_on "hdf5"
   depends_on "readline"
@@ -26,7 +29,7 @@ class Casacore < Formula
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCXX11=ON" if build.with? "cxx11"
     cmake_args << "-DBUILD_PYTHON=ON" if build.with? "python"
-    cmake_args << "-DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/Current/lib/libpython2.7.dylib"
+    cmake_args << "-DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/Current/lib/libpython2.7.dylib"  if build.with? "python"
     cmake_args << "-DUSE_FFTW3=ON" << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << "-DUSE_HDF5=ON" << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << "-DUSE_THREADS=ON" << "-DDATA_DIR=#{HOMEBREW_PREFIX}/share/casacore/data"
