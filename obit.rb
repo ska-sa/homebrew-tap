@@ -39,6 +39,7 @@ class Obit < Formula
     # Improve installation procedure for Python module
     # Don't update version in install as it is done as part of staging now
     # Add missing build dependencies to enable parallel builds
+    # Move include_dirs into Extension class in Python setup.py
     DATA
   end
 
@@ -491,3 +492,16 @@ index fbfa6cb..ec98c8a 100644
  	@install_sh@ -s ObitView @exec_prefix@/bin/
  	@install_sh@ -s ObitMess @exec_prefix@/bin/
  
+diff --git a/Obit/python/makesetup.py b/Obit/python/makesetup.py
+index 58740a0..5e9e2c2 100644
+--- a/Obit/python/makesetup.py
++++ b/Obit/python/makesetup.py
+@@ -109,6 +109,6 @@ outfile.write('                              [\''+packageName+'_wrap.c\'],'+os.l
+ outfile.write('                              extra_compile_args='+str(compileArgs)+','+os.linesep)
+ outfile.write('                              library_dirs='+str(libDirs)+','+os.linesep)
+ outfile.write('                              libraries='+str(libs)+','+os.linesep)
+-outfile.write('                              runtime_library_dirs='+str(runtimeLibDirs)+')],'+os.linesep)
+-outfile.write('       include_dirs='+str(incDirs)+os.linesep)
++outfile.write('                              runtime_library_dirs='+str(runtimeLibDirs)+','+os.linesep)
++outfile.write('                              include_dirs='+str(incDirs)+')]'+os.linesep)
+ outfile.write(')')
