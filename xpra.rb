@@ -2,7 +2,7 @@ require 'formula'
 
 class Xpra < Formula
   homepage 'http://xpra.org'
-  url 'http://winswitch.org/src/xpra-0.10.9.tar.bz2'
+  url 'http://xpra.org/src/xpra-0.10.9.tar.bz2'
   sha1 '1fe8113242143d51f492502e1d0c7441c34cbf23'
   head 'http://xpra.org/svn/Xpra/trunk/src/', :using => :svn
 
