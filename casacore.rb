@@ -1,7 +1,7 @@
 class Casacore < Formula
   homepage "https://github.com/casacore/casacore/wiki"
-  url "https://github.com/casacore/casacore/archive/v2.0.3.tar.gz"
-  sha256 "44746633113e16f8daabb38c404d2b316b1acfd9304a4df91cb1849d2786d726"
+  url "https://github.com/casacore/casacore/archive/v2.1.0.tar.gz"
+  sha256 "9c0017e741c1c4b14bc09582867910f750cd76ff2673e0ecd554aa5b2db7acb4"
   head "https://github.com/casacore/casacore.git"
 
   option "without-python", "Don't build with Python support (pyrap and python-casacore won't work though)"
