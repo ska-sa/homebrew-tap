@@ -1,8 +1,13 @@
 class Casacore < Formula
-  homepage "https://github.com/casacore/casacore/wiki"
+  homepage "https://github.com/casacore/casacore"
   url "https://github.com/casacore/casacore/archive/v2.1.0.tar.gz"
   sha256 "9c0017e741c1c4b14bc09582867910f750cd76ff2673e0ecd554aa5b2db7acb4"
   head "https://github.com/casacore/casacore.git"
+
+  bottle do
+    root_url "https://bintray.com/artifact/download/casacore/homebrew-bottles/"
+    sha256 "d3addee413010f7e2e5827c07c1c645c64b41b3abcddf56ce45924283a36d2fa" => :el_capitan
+  end
 
   option "with-cxx11", "Build with C++11 support"
 
