@@ -2,8 +2,8 @@ require 'formula'
 
 class Xpra < Formula
   homepage 'http://xpra.org'
-  url 'https://www.xpra.org/src/xpra-0.10.9.tar.bz2'
-  sha256 '78013fff63ac8fdbbc02b0afee800ae8e0679d460d77d0eb9d3ebd003a1e8835'
+  url 'https://www.xpra.org/src/xpra-0.17.6.tar.bz2'
+  sha256 'd08a68802f86183e69c7bcb2b6c42dc93fce60d2d017beb9a1b18f581f8902d2'
   head 'http://xpra.org/svn/Xpra/trunk/src/', :using => :svn
 
   # We want pkg-config
@@ -22,12 +22,13 @@ class Xpra < Formula
   depends_on 'ffmpeg'
   depends_on 'libvpx'
   depends_on 'webp'
+  # extras: rencode cryptography lzo lz4
 
   def patches
-    # Do not depend on gtkosx_application / gtk-mac-integration library,
-    # as this requires the Gtk Quartz backend which is unavailable on brew.
-    # Use AppKit NSBeep instead of Carbon.Snd.SysBeep for system bell.
-    # Fix icon directory.
+    # 1) Do not depend on gtkosx_application / gtk-mac-integration library,
+    #    as this requires the Gtk Quartz backend which is unavailable on brew.
+    # 2) Use AppKit NSBeep instead of Carbon.Snd.SysBeep for system bell.
+    # 3) Fix icon directory.
     DATA
   end
 
@@ -38,19 +39,10 @@ end
 
 __END__
 diff --git a/xpra/platform/darwin/gui.py b/xpra/platform/darwin/gui.py
-index 14f0b20..1abbc81 100644
+index 354edd3..52f0c6b 100644
 --- a/xpra/platform/darwin/gui.py
 +++ b/xpra/platform/darwin/gui.py
-@@ -48,6 +48,8 @@ except:
- 
- def do_init():
-     osxapp = get_OSXApplication()
-+    if not osxapp:
-+        return
-     icon = get_icon("xpra.png")
-     if icon:
-         osxapp.set_dock_icon_pixbuf(icon)
-@@ -58,6 +60,8 @@ def do_init():
+@@ -63,6 +63,8 @@ def do_init():
  
  def do_ready():
      osxapp = get_OSXApplication()
@@ -59,12 +51,11 @@ index 14f0b20..1abbc81 100644
      osxapp.ready()
  
  
-
 diff --git a/xpra/platform/darwin/osx_tray.py b/xpra/platform/darwin/osx_tray.py
-index 0bccf89..b62963c 100644
+index 9b1ddd7..d028727 100644
 --- a/xpra/platform/darwin/osx_tray.py
 +++ b/xpra/platform/darwin/osx_tray.py
-@@ -51,6 +51,8 @@ class OSXTray(TrayBase):
+@@ -54,6 +54,8 @@ class OSXTray(TrayBase):
          pass
  
      def set_blinking(self, on):
@@ -73,7 +64,7 @@ index 0bccf89..b62963c 100644
          if on:
              if self.last_attention_request_id<0:
                  self.last_attention_request_id = self.macapp.attention_request(INFO_REQUEST)
-@@ -60,6 +62,8 @@ class OSXTray(TrayBase):
+@@ -63,6 +65,8 @@ class OSXTray(TrayBase):
                  self.last_attention_request_id = -1
  
      def set_icon_from_data(self, pixels, has_alpha, w, h, rowstride):
@@ -82,7 +73,7 @@ index 0bccf89..b62963c 100644
          tray_icon = gtk.gdk.pixbuf_new_from_data(pixels, gtk.gdk.COLORSPACE_RGB, has_alpha, 8, w, h, rowstride)
          self.macapp.set_dock_icon_pixbuf(tray_icon)
  
-@@ -77,7 +81,8 @@ class OSXTray(TrayBase):
+@@ -80,7 +84,8 @@ class OSXTray(TrayBase):
              return
          #redundant: the menu bar has already been set during gui init
          #using the basic the simple menu from build_menu_bar()
@@ -90,31 +81,67 @@ index 0bccf89..b62963c 100644
 +        if self.macapp:
 +            self.macapp.set_menu_bar(self.menu)
          mh.add_full_menu()
-         debug("OSXTray.set_global_menu() done")
+         log("OSXTray.set_global_menu() done")
  
-@@ -89,7 +94,8 @@ class OSXTray(TrayBase):
+@@ -92,7 +97,8 @@ class OSXTray(TrayBase):
          self.disconnect_dock_item.connect("activate", self.quit)
          self.dock_menu.add(self.disconnect_dock_item)
          self.dock_menu.show_all()
 -        self.macapp.set_dock_menu(self.dock_menu)
 +        if self.macapp:
 +            self.macapp.set_dock_menu(self.dock_menu)
-         debug("OSXTray.set_dock_menu() done")
+         log("OSXTray.set_dock_menu() done")
  
      def set_dock_icon(self):
-# Currently this is only used by HEAD
-# @@ -101,4 +107,5 @@ class OSXTray(TrayBase):
-#              return
-#          debug("OSXTray.set_dock_icon() loading icon from %s", filename)
-#          pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-# -        self.macapp.set_dock_icon_pixbuf(pixbuf)
-# +        if self.macapp:
-# +            self.macapp.set_dock_icon_pixbuf(pixbuf)
+@@ -104,4 +110,5 @@ class OSXTray(TrayBase):
+             return
+         log("OSXTray.set_dock_icon() loading icon from %s", filename)
+         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+-        self.macapp.set_dock_icon_pixbuf(pixbuf)
++        if self.macapp:
++            self.macapp.set_dock_icon_pixbuf(pixbuf)
+diff --git a/xpra/platform/darwin/osx_menu.py b/xpra/platform/darwin/osx_menu.py
+index 3839895..f718437 100644
+--- a/xpra/platform/darwin/osx_menu.py
++++ b/xpra/platform/darwin/osx_menu.py
+@@ -127,7 +127,8 @@ class OSXMenuHelper(GTKTrayMenuBase):
+                 item.set_submenu(submenu)
+             item.show_all()
+             macapp = get_OSXApplication()
+-            macapp.insert_app_menu_item(item, 1)
++            if macapp:
++                macapp.insert_app_menu_item(item, 1)
+             self.app_menus[label] = item
+ 
+     def add_to_menu_bar(self, label, submenu):
+@@ -157,7 +158,8 @@ class OSXMenuHelper(GTKTrayMenuBase):
+         item = self.menuitem("About", cb=about)
+         item.show_all()
+         macapp = get_OSXApplication()
+-        macapp.insert_app_menu_item(item, 0)
++        if macapp:
++            macapp.insert_app_menu_item(item, 0)
+         self.app_menus["About"] = item
+ 
+ 
+diff --git a/xpra/platform/darwin/paths.py b/xpra/platform/darwin/paths.py
+index 0f7137d..67990f3 100644
+--- a/xpra/platform/darwin/paths.py
++++ b/xpra/platform/darwin/paths.py
+@@ -18,7 +18,7 @@ def do_get_resources_dir():
+     RESOURCES = "/Resources/"
+     #FUGLY warning: importing gtkosx_application causes the dock to appear,
+     #and in some cases we don't want that.. so use the env var XPRA_SKIP_UI as workaround for such cases:
+-    if os.environ.get("XPRA_SKIP_UI", "0")=="0":
++    if os.environ.get("XPRA_SKIP_UI", "1")=="0":
+         try:
+             import gtkosx_application        #@UnresolvedImport
+             try:
 diff --git a/xpra/platform/darwin/gui.py b/xpra/platform/darwin/gui.py
-index 1abbc81..08861e0 100644
+index 52f0c6b..05fd0ec 100644
 --- a/xpra/platform/darwin/gui.py
 +++ b/xpra/platform/darwin/gui.py
-@@ -41,9 +41,13 @@ def get_OSXApplication():
+@@ -39,9 +39,13 @@ def get_OSXApplication():
      return macapp
  
  try:
@@ -130,7 +157,7 @@ index 1abbc81..08861e0 100644
  
  
  def do_init():
-@@ -73,7 +77,10 @@ def get_native_tray_classes():
+@@ -77,10 +81,13 @@ def get_native_tray_classes():
      return [OSXTray]
  
  def system_bell(*args):
@@ -145,18 +172,25 @@ index 1abbc81..08861e0 100644
 +        SysBeep(1)
 +        return True
 +    return False
+ 
+ #if there is an easier way of doing this, I couldn't find it:
+ try:
 diff --git a/xpra/platform/darwin/paths.py b/xpra/platform/darwin/paths.py
-index 5410525..e845cc8 100644
+index f9ac98e..0f7137d 100644
 --- a/xpra/platform/darwin/paths.py
 +++ b/xpra/platform/darwin/paths.py
-@@ -47,4 +47,9 @@ def get_app_dir():
+@@ -61,7 +61,13 @@ def do_get_app_dir():
  
- def get_icon_dir():
-     rsc = get_resources_dir()
--    return os.path.join(rsc, "share", "xpra", "icons")
+ def do_get_icon_dir():
+     from xpra.platform.paths import get_resources_dir
+-    i = os.path.join(get_resources_dir(), "share", "xpra", "icons")
++    rsc = get_resources_dir()
 +    head, tail = os.path.split(rsc)
 +    headhead, headtail = os.path.split(head)
 +    if headtail == "share" and tail == "xpra":
-+        return os.path.join(rsc, "icons")
++        i = os.path.join(rsc, "icons")
 +    else:
-+        return os.path.join(rsc, "share", "xpra", "icons")
++        i = os.path.join(rsc, "share", "xpra", "icons")
+     debug("get_icon_dir()=%s", i)
+     return i
+ 
