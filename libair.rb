@@ -3,7 +3,7 @@ require 'formula'
 class Libair < Formula
   homepage 'http://www.mrao.cam.ac.uk/~bn204/alma/sweng/libairbuild.html'
   url 'http://www.mrao.cam.ac.uk/~bn204/soft/libair-1.2.tar.bz2'
-  sha1 '32e9c2854f8b5fa8e85fa356e2dc0ba4e1db5859'
+  sha256 'aa639c0be126bcc8f0c40af3fa53e40628cd659d873a9cd03d028b6cc9b314e7'
 
   depends_on 'boost'
   depends_on 'bnmin1'

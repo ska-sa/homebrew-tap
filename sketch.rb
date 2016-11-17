@@ -3,7 +3,7 @@ require 'formula'
 class Sketch < Formula
   homepage 'http://www.frontiernet.net/~eugene.ressler/'
   url 'http://www.frontiernet.net/~eugene.ressler/sketch-0.3.7.tgz'
-  sha1 'ac12a4efa10e4f32f6bd736485e9a9413143e730'
+  sha256 '09ddd286cba6ab4d4cba0ded986231f7b0f9cff4cb0c35d121ec1d65af4a14fe'
 
   # Building the documentation requires access to GhostScript
   env :userpaths

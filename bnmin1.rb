@@ -3,7 +3,7 @@ require 'formula'
 class Bnmin1 < Formula
   homepage 'http://www.mrao.cam.ac.uk/~bn204/oof/bnmin1.html'
   url 'http://www.mrao.cam.ac.uk/~bn204/soft/bnmin1-1.11.tar.bz2'
-  sha1 'a5c690f80d8ed82c97b7370000dcecc11079cc2f'
+  sha256 'e2367190a4d6439e122cc2d78ad8224dcd9690fbc201f36a2a87fec149a39540'
 
   depends_on 'swig' => :build
   depends_on 'boost'

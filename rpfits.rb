@@ -3,7 +3,7 @@ require 'formula'
 class Rpfits < Formula
   url 'ftp://ftp.atnf.csiro.au/pub/software/rpfits/rpfits-2.23.tar.gz'
   homepage 'http://www.atnf.csiro.au/computing/software/rpfits.html'
-  sha1 '16e4b14ea6cbdeedbc7f47adec3ff2b0aec621de'
+  sha256 '7fbed9951b16146ee8d02b09f447adb1706e812c33a1026e004b7feb63f221a0'
 
   depends_on :fortran
 

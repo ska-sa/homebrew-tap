@@ -3,7 +3,7 @@ require 'formula'
 class Libwww < Formula
   homepage 'http://www.w3.org/Library/'
   url 'http://www.w3.org/Library/Distribution/w3c-libwww-5.4.0.tgz'
-  sha1 '2394cb4e0dc4e2313a9a0ddbf508e4b726e9af63'
+  sha256 '64841cd99a41c84679cfbc777ebfbb78bdc2a499f7f6866ccf5cead391c867ef'
 
   depends_on 'pkg-config' => :build
 
