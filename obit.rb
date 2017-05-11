@@ -1,17 +1,15 @@
-require 'formula'
-
 class ObitDownloadStrategy < SubversionDownloadStrategy
   def stage
     # Bake SVN revision into ObitVersion.c before staging/exporting the Obit tarball without commit history
-    quiet_system 'python', cached_location+'Obit/share/scripts/getVersion.py', cached_location+'Obit'
-    ohai 'Obit version is ' + File.open(cached_location+'Obit/src/ObitVersion.c') {|f| f.read[/"(\d+M*)"/][$1]}
+    quiet_system "python", cached_location+"Obit/share/scripts/getVersion.py", cached_location+"Obit"
+    ohai "Obit version is " + File.open(cached_location+"Obit/src/ObitVersion.c") { |f| f.read[/"(\d+M*)"/][$1] }
     super
   end
 end
 
 class Obit < Formula
-  homepage 'http://www.cv.nrao.edu/~bcotton/Obit.html'
-  head 'https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem', :using => ObitDownloadStrategy
+  homepage "http://www.cv.nrao.edu/~bcotton/Obit.html"
+  head "https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem", :using => ObitDownloadStrategy
 
   # We need to find the MacTeX executables in order to build the Obit
   # user manuals and they are not in the Homebrew restricted path.
@@ -19,19 +17,23 @@ class Obit < Formula
   # included, which are aggressively stripped out in superenv.
   env :std
 
-  depends_on 'autoconf' => :build
-  depends_on 'automake' => :build
-  depends_on 'pkg-config' => :build
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "pkg-config" => :build
 
-  depends_on 'pgplot'
-  depends_on 'cfitsio'
-  depends_on 'glib'
-  depends_on 'fftw'
-  depends_on 'gsl'
-  depends_on 'lesstif'
-  depends_on 'xmlrpc-c'
-  depends_on 'boost'
-  depends_on 'libair'
+  depends_on "pgplot"
+  conflicts_with "plplot", :because => "because it has a float type mismatch and configure can't disable it"
+  depends_on "cfitsio"
+  depends_on "glib"
+  depends_on "fftw"
+  depends_on "gsl@1"
+  depends_on "lesstif"
+  depends_on "xmlrpc-c"
+  if MacOS.version == :el_capitan
+    depends_on "libxml2" # because the system version is broken on macOS 10.11
+  end
+  depends_on "boost"
+  depends_on "libair"
   depends_on :fortran
 
   def patches
@@ -45,73 +47,81 @@ class Obit < Formula
 
   def install
     # Obtain information on Python and X11 installations
-    python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
+    python_xy = "python" + `python -c "import sys;print(sys.version[:3])"`.chomp
     site_packages = lib + "#{python_xy}/site-packages"
     global_site_packages = HOMEBREW_PREFIX/"lib/#{python_xy}/site-packages"
-    x11_inc = %x(bash -c 'PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --cflags').chomp
-    x11_lib = %x(bash -c 'PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --libs').chomp
+    x11_inc = `bash -c "PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --cflags"`.chomp
+    x11_lib = `bash -c "PKG_CONFIG_PATH=/usr/X11/lib/pkgconfig pkg-config x11 --libs"`.chomp
 
-    ohai 'Building and installing main Obit package'
-    ohai '-----------------------------------------'
-    cd 'Obit'
-    safe_system 'aclocal -I m4; autoconf'
-    system './configure', "--prefix=#{prefix}"
-    system 'make'
+    ohai "Building and installing main Obit package"
+    ohai "-----------------------------------------"
+    cd "Obit"
+    # Attempt to make ALMAWVR aka libair support work
+    inreplace "m4/wvr.m4", "almawvr/almaabs_c.h", "almaabs_c.h"
+    inreplace "m4/wvr.m4", "wvr_almaabs_ret", "almaabs_ret"
+    inreplace "tasks/WVRCal.c", "almawvr/almaabs_c.h", "almaabs_c.h"
+    # PLplot supports floating-point pen widths since version 5.10.0 (2014-02-13)
+    # inreplace "src/ObitPlot.c", "plwid ((PLINT)lwidth);", "plwidth ((PLFLT)lwidth);"
+    safe_system "aclocal -I m4; autoconf"
+    # Unfortunately PLplot has a 32-bit PLFLT while Obit has a 64-bit ofloat so disable it
+    # [doesn't work, use conflicts_with instead in the meantime]
+    system "./configure", "--prefix=#{prefix}", "--without-plplot"
+    system "make"
     # Assemble debug symbol (*.dSYM) files
-    safe_system 'dsymutil', 'lib/libObit.dylib', 'python/build/site-packages/Obit.so'
-    # Since Obit does not do its own 'make install', we have to do it ourselves
-    ohai 'make install'
-    rm_f ['bin/.cvsignore', 'include/.cvsignore']
-    prefix.install 'bin'
-    prefix.install 'include'
-    lib.install Dir['lib/libObit.dylib*']
-    mkdir_p "#{site_packages}"
-    cp_r 'python/build/site-packages', "#{site_packages}/../"
+    safe_system "dsymutil", "lib/libObit.dylib", "python/build/site-packages/Obit.so"
+    # Since Obit does not do its own "make install", we have to do it ourselves
+    ohai "make install"
+    rm_f ["bin/.cvsignore", "include/.cvsignore"]
+    prefix.install "bin"
+    prefix.install "include"
+    lib.install Dir["lib/libObit.dylib*"]
+    mkdir_p site_packages
+    cp_r "python/build/site-packages", "#{site_packages}/../"
     mkdir_p "#{share}/obit"
-    cp_r ['share/data', 'share/scripts', 'TDF'], "#{share}/obit"
-    mv 'testData', "#{share}/obit/data/test"
-    mv 'testScripts', "#{share}/obit/scripts/test"
+    cp_r ["share/data", "share/scripts", "TDF"], "#{share}/obit"
+    mv "testData", "#{share}/obit/data/test"
+    mv "testScripts", "#{share}/obit/scripts/test"
 
-    ohai 'Building and installing ObitTalk package'
-    ohai '----------------------------------------'
-    cd '../ObitTalk'
+    ohai "Building and installing ObitTalk package"
+    ohai "----------------------------------------"
+    cd "../ObitTalk"
     begin
       ohai "Checking for the presence of LaTeX and friends for building documentation"
-      safe_system 'which latex bibtex dvips dvipdf'
+      safe_system "which latex bibtex dvips dvipdf"
     rescue ErrorDuringExecution
       # Remove the documentation build (brittle but preferable to getting aclocal and automake involved)
-      inreplace 'Makefile.in', ' doc', ''
-      opoo 'No TeX installation found - documentation will not be built (please install MacTeX first if you want docs)'
+      inreplace "Makefile.in", " doc", ""
+      opoo "No TeX installation found - documentation will not be built (please install MacTeX first if you want docs)"
     end
-    inreplace 'bin/ObitTalk.in', '@datadir@/python', "#{global_site_packages}"
-    inreplace 'bin/ObitTalkServer.in', '@datadir@/python', "#{global_site_packages}"
-    inreplace 'python/Makefile.in', 'share/obittalk/python', "lib/#{python_xy}/site-packages"
-    inreplace 'python/Proxy/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python_xy}/site-packages"
-    inreplace 'python/Wizardry/Makefile.in', '$(pkgdatadir)/python', "$(prefix)/lib/#{python_xy}/site-packages"
-    inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/tdf', "#{share}/obit/TDF"
-    inreplace 'python/Proxy/ObitTask.py', '/usr/lib/obit/bin', "#{bin}"
-    inreplace 'doc/Makefile.in', '../../doc', "#{share}/doc/obit"
-    system './configure', "PYTHONPATH=#{site_packages}:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
+    inreplace "bin/ObitTalk.in", "@datadir@/python", global_site_packages
+    inreplace "bin/ObitTalkServer.in", "@datadir@/python", global_site_packages
+    inreplace "python/Makefile.in", "share/obittalk/python", "lib/#{python_xy}/site-packages"
+    inreplace "python/Proxy/Makefile.in", "$(pkgdatadir)/python", "$(prefix)/lib/#{python_xy}/site-packages"
+    inreplace "python/Wizardry/Makefile.in", "$(pkgdatadir)/python", "$(prefix)/lib/#{python_xy}/site-packages"
+    inreplace "python/Proxy/ObitTask.py", "/usr/lib/obit/tdf", "#{share}/obit/TDF"
+    inreplace "python/Proxy/ObitTask.py", "/usr/lib/obit/bin", bin
+    inreplace "doc/Makefile.in", "../../doc", "#{share}/doc/obit"
+    system "./configure", "PYTHONPATH=#{site_packages}:$PYTHONPATH", "DYLD_LIBRARY_PATH=#{lib}",
            "--prefix=#{prefix}"
-    system 'make'
-    system 'make', 'install', "prefix=#{prefix}"
+    system "make"
+    system "make", "install", "prefix=#{prefix}"
 
-    ohai 'Building and installing ObitView package'
-    ohai '----------------------------------------'
-    cd '../ObitView'
-    system './configure', "CFLAGS=#{x11_inc}", "LDFLAGS=#{x11_lib}", "--with-obit=#{prefix}", "--prefix=#{prefix}"
-    system 'make'
-    system 'make', 'install', "prefix=#{prefix}"
+    ohai "Building and installing ObitView package"
+    ohai "----------------------------------------"
+    cd "../ObitView"
+    system "./configure", "CFLAGS=#{x11_inc}", "LDFLAGS=#{x11_lib}", "--with-obit=#{prefix}", "--prefix=#{prefix}"
+    system "make"
+    system "make", "install", "prefix=#{prefix}"
   end
 
-  def test
+  test do
     mktemp do
-      cp_r "#{share}/obit/data/test", 'data'
-      safe_system 'gunzip data/*.gz'
-      tests = ['testObit', 'testContourPlot', 'testFeather', 'testHGeom',
-               'testUVImage', 'testUVSub', 'testCleanVis']
+      cp_r "#{share}/obit/data/test", "data"
+      safe_system "gunzip data/*.gz"
+      tests = ["testObit", "testContourPlot", "testFeather", "testHGeom",
+               "testUVImage", "testUVSub", "testCleanVis"]
       tests.each do |name|
-        safe_system 'python', "#{share}/obit/scripts/test/#{name}.py", 'data'
+        safe_system "python", "#{share}/obit/scripts/test/#{name}.py", "data"
         ohai "#{name} OK"
       end
     end
