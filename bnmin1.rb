@@ -6,7 +6,7 @@ class Bnmin1 < Formula
 
   depends_on "swig" => :build
   depends_on "boost"
-  depends_on "gsl"
+  depends_on "gsl@1"
   depends_on :fortran
 
   def patches
