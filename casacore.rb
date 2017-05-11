@@ -25,10 +25,10 @@ class Casacore < Formula
 
   if build.with?("python3")
     depends_on "boost-python" => ["with-python3"]
-    depends_on "homebrew/python/numpy" => ["with-python3"]
+    depends_on "numpy" => ["with-python3"]
   elsif build.with?("python")
     depends_on "boost-python"
-    depends_on "homebrew/python/numpy"
+    depends_on "numpy"
   end
 
   def install
