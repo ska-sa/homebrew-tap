@@ -1,4 +1,5 @@
 class Casacore < Formula
+  desc "Suite of C++ libraries for radio astronomy data processing"
   homepage "https://github.com/casacore/casacore"
   url "https://github.com/casacore/casacore/archive/v2.1.0.tar.gz"
   sha256 "9c0017e741c1c4b14bc09582867910f750cd76ff2673e0ecd554aa5b2db7acb4"
@@ -22,12 +23,12 @@ class Casacore < Formula
   depends_on "casacore-data"
   depends_on :fortran
 
-  if build.with?('python3')
-      depends_on 'boost-python' => ['with-python3']
-      depends_on "homebrew/python/numpy" => ['with-python3']
-  elsif build.with?('python')
-      depends_on 'boost-python'
-      depends_on "homebrew/python/numpy"
+  if build.with?("python3")
+    depends_on "boost-python" => ["with-python3"]
+    depends_on "homebrew/python/numpy" => ["with-python3"]
+  elsif build.with?("python")
+    depends_on "boost-python"
+    depends_on "homebrew/python/numpy"
   end
 
   def install
@@ -39,7 +40,7 @@ class Casacore < Formula
     cmake_args.delete "-DCMAKE_BUILD_TYPE=None"
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCXX11=ON" if build.with? "cxx11"
-    
+
     if build.with? "python"
       cmake_args << "-DBUILD_PYTHON=ON"
       cmake_args << "-DPYTHON2_EXECUTABLE=/usr/local/bin/python2"
@@ -47,7 +48,7 @@ class Casacore < Formula
     else
       cmake_args << "-DBUILD_PYTHON=OFF"
     end
- 
+
     if build.with? "python3"
       cmake_args << "-DBUILD_PYTHON3=ON"
       cmake_args << "-DPYTHON3_EXECUTABLE=/usr/local/bin/python3"

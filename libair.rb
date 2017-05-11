@@ -1,13 +1,12 @@
-require 'formula'
-
 class Libair < Formula
-  homepage 'http://www.mrao.cam.ac.uk/~bn204/alma/sweng/libairbuild.html'
-  url 'http://www.mrao.cam.ac.uk/~bn204/soft/libair-1.2.tar.bz2'
-  sha256 'aa639c0be126bcc8f0c40af3fa53e40628cd659d873a9cd03d028b6cc9b314e7'
+  desc "Atmospheric inference for phase correction of ALMA data using WVR"
+  homepage "http://www.mrao.cam.ac.uk/~bn204/alma/sweng/libairbuild.html"
+  url "http://www.mrao.cam.ac.uk/~bn204/soft/libair-1.2.tar.bz2"
+  sha256 "aa639c0be126bcc8f0c40af3fa53e40628cd659d873a9cd03d028b6cc9b314e7"
 
-  depends_on 'boost'
-  depends_on 'bnmin1'
-  depends_on 'pkg-config' => :build
+  depends_on "boost"
+  depends_on "bnmin1"
+  depends_on "pkg-config" => :build
 
   def patches
     # Patch 1: Allow the use of SWIG 2.x for Python bindings
@@ -20,7 +19,11 @@ class Libair < Formula
     ENV.deparallelize
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}", "--disable-pybind"
-    system "make install" 
+    system "make", "install"
+  end
+
+  test do
+    system "#{bin}/wvrretrieve", "--help"
   end
 end
 

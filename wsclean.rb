@@ -1,4 +1,5 @@
 class Wsclean < Formula
+  desc "Fast widefield interferometric imager based on w-stacking"
   homepage "https://sourceforge.net/projects/wsclean/"
   url "https://sourceforge.net/projects/wsclean/files/wsclean-1.7/wsclean-1.7.tar.bz2"
   sha256 "05de05728ace42c3f7cba38e6c0182534d0be5d00b4563501970a9b77a70cd54"
@@ -25,7 +26,7 @@ class Wsclean < Formula
   end
 
   test do
-    system "wsclean", "-version"
+    system "#{bin}/wsclean", "-version"
   end
 end
 

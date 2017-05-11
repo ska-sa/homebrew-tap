@@ -1,13 +1,12 @@
-require 'formula'
-
 class Bnmin1 < Formula
-  homepage 'http://www.mrao.cam.ac.uk/~bn204/oof/bnmin1.html'
-  url 'http://www.mrao.cam.ac.uk/~bn204/soft/bnmin1-1.11.tar.bz2'
-  sha256 'e2367190a4d6439e122cc2d78ad8224dcd9690fbc201f36a2a87fec149a39540'
+  desc "Bojan Nikolic's minimisation and statistical inference library"
+  homepage "http://www.mrao.cam.ac.uk/~bn204/oof/bnmin1.html"
+  url "http://www.mrao.cam.ac.uk/~bn204/soft/bnmin1-1.11.tar.bz2"
+  sha256 "e2367190a4d6439e122cc2d78ad8224dcd9690fbc201f36a2a87fec149a39540"
 
-  depends_on 'swig' => :build
-  depends_on 'boost'
-  depends_on 'gsl'
+  depends_on "swig" => :build
+  depends_on "boost"
+  depends_on "gsl"
   depends_on :fortran
 
   def patches
@@ -20,12 +19,16 @@ class Bnmin1 < Formula
   def install
     ENV.deparallelize
     # Avoid arithmetic overflow in pda_d1mach.f
-    ENV['FFLAGS'] = '-fno-range-check'
+    ENV["FFLAGS"] = "-fno-range-check"
     # Workaround to get fortran and C++ to play together (see Homebrew issue #20173)
-    ENV.append 'LDFLAGS', "-L/usr/lib -lstdc++"
+    ENV.append "LDFLAGS", "-L/usr/lib -lstdc++"
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}", "--enable-static"
-    system "make install"
+    system "make", "install"
+  end
+
+  test do
+    system "#{bin}/t_unit"
   end
 end
 

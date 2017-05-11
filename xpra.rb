@@ -1,28 +1,27 @@
-require 'formula'
-
 class Xpra < Formula
-  homepage 'http://xpra.org'
-  url 'https://www.xpra.org/src/xpra-0.17.6.tar.bz2'
-  sha256 'd08a68802f86183e69c7bcb2b6c42dc93fce60d2d017beb9a1b18f581f8902d2'
-  head 'http://xpra.org/svn/Xpra/trunk/src/', :using => :svn
+  desc 'Multi-platform screen and application forwarding system: "screen for X11"'
+  homepage "http://xpra.org"
+  url "https://www.xpra.org/src/xpra-0.17.6.tar.bz2"
+  sha256 "d08a68802f86183e69c7bcb2b6c42dc93fce60d2d017beb9a1b18f581f8902d2"
+  head "http://xpra.org/svn/Xpra/trunk/src/", :using => :svn
 
   # We want pkg-config
   env :userpaths
 
   depends_on :python
-  depends_on 'Cython' => :python
+  depends_on "Cython" => :python
   # PyObjC is used for AppKit - install core first to avoid recompilation
-  depends_on 'objc' => :python
+  depends_on "objc" => :python
   # PyOpenGL is only required if pygtkglext is to be used
-  depends_on 'OpenGL' => :python if build.with? 'pygtkglext'
-  depends_on 'OpenGL_accelerate' => :python if build.with? 'pygtkglext'
+  depends_on "OpenGL" => :python if build.with? "pygtkglext"
+  depends_on "OpenGL_accelerate" => :python if build.with? "pygtkglext"
   depends_on :x11
-  depends_on 'pygtk'
-  depends_on 'pygtkglext' => :recommended
-  depends_on 'gtk-mac-integration'
-  depends_on 'ffmpeg'
-  depends_on 'libvpx'
-  depends_on 'webp'
+  depends_on "pygtk"
+  depends_on "pygtkglext" => :recommended
+  depends_on "gtk-mac-integration"
+  depends_on "ffmpeg"
+  depends_on "libvpx"
+  depends_on "webp"
   # extras: rencode cryptography lzo lz4
 
   def patches
@@ -34,6 +33,10 @@ class Xpra < Formula
   def install
     inreplace "xpra/platform/paths.py", "sys.prefix", '"#{prefix}"'
     system "python", "setup.py", "install", "--prefix=#{prefix}"
+  end
+
+  test do
+    system "#{bin}/xpra", "showconfig"
   end
 end
 
