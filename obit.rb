@@ -27,7 +27,7 @@ class Obit < Formula
   depends_on "glib"
   depends_on "fftw"
   depends_on "gsl@1"
-  depends_on "lesstif"
+  depends_on "openmotif"
   depends_on "xmlrpc-c"
   if MacOS.version == :el_capitan
     depends_on "libxml2" # because the system version is broken on macOS 10.11
