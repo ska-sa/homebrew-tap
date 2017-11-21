@@ -1,8 +1,8 @@
 class Casacore < Formula
   desc "Suite of C++ libraries for radio astronomy data processing"
   homepage "https://github.com/casacore/casacore"
-  url "https://github.com/casacore/casacore/archive/v2.1.0.tar.gz"
-  sha256 "9c0017e741c1c4b14bc09582867910f750cd76ff2673e0ecd554aa5b2db7acb4"
+  url "https://github.com/casacore/casacore/archive/v2.4.0.tar.gz"
+  sha256 "9ae749d604d037a5a7b13b9eb759dfb8e22a405dcdb61f67c0916d3fe78db39c"
   head "https://github.com/casacore/casacore.git"
 
   bottle do
@@ -10,7 +10,7 @@ class Casacore < Formula
     sha256 "d3addee413010f7e2e5827c07c1c645c64b41b3abcddf56ce45924283a36d2fa" => :el_capitan
   end
 
-  option "with-cxx11", "Build with C++11 support"
+  option "without-cxx11", "Build without C++11 support"
 
   depends_on "cmake" => :build
   depends_on "cfitsio"
@@ -39,7 +39,7 @@ class Casacore < Formula
     cmake_args = std_cmake_args
     cmake_args.delete "-DCMAKE_BUILD_TYPE=None"
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
-    cmake_args << "-DCXX11=ON" if build.with? "cxx11"
+    cmake_args << "-DCXX11=False" if build.without? "cxx11"
 
     if build.with? "python"
       cmake_args << "-DBUILD_PYTHON=ON"
