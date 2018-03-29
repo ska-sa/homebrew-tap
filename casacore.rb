@@ -14,14 +14,14 @@ class Casacore < Formula
 
   depends_on "cmake" => :build
   depends_on "cfitsio"
-  depends_on "homebrew/science/wcslib"
+  depends_on "brewsci/science/wcslib"
   depends_on "python" => :recommended
   depends_on "python3" => :optional
   depends_on "fftw"
   depends_on "hdf5"
   depends_on "readline"
   depends_on "casacore-data"
-  depends_on :fortran
+  depends_on "gcc"
 
   if build.with?("python3")
     depends_on "boost-python" => ["with-python3"]
