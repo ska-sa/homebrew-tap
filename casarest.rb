@@ -11,11 +11,11 @@ class Casarest < Formula
   depends_on 'readline'
   depends_on 'wcslib'
   depends_on 'hdf5'
-  depends_on :fortran
+  depends_on 'gcc'
 
   fails_with :clang do
     build 503
-    cause <<-EOS.undent
+    cause <<~EOS
       Code does not follow C++ standard strictly but does whatever GCC allows
       EOS
   end
