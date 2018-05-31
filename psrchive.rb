@@ -1,17 +1,10 @@
 class Psrchive < Formula
-  homepage "http://psrchive.sourceforge.net/"
-  url "https://downloads.sourceforge.net/psrchive/psrchive-2012-12.tar.gz"
-  version "2012-12"
-  sha256 "0ca685b644eae34cac6dcbbc56b3729f58d334cee94322b38ec98d26c8b9bb71"
-
-  depends_on :x11
-  depends_on :fortran
-
-  depends_on "pgplot"
-  depends_on "fftw"
-  depends_on "cfitsio"
+  desc 'A C++ development library for the analysis of pulsar astronomical data'
+  homepage "https://psrchive.sourceforge.io/"
 
   stable do
+    url "https://downloads.sourceforge.net/psrchive/psrchive-2012-12.tar.gz"
+    sha256 "0ca685b644eae34cac6dcbbc56b3729f58d334cee94322b38ec98d26c8b9bb71"
     # 1. Add missing include for mem_fun and bind2nd
     # 2. Use 'template' keyword to treat 'get' as a dependent template name
     # 3 - 6. Fix unqualified lookup in templates for overloaded operators
@@ -28,6 +21,13 @@ class Psrchive < Formula
 
     patch :DATA
   end
+
+  depends_on :x11
+  depends_on "gcc"
+
+  depends_on "pgplot"
+  depends_on "fftw"
+  depends_on "cfitsio"
 
   def install
     ENV.deparallelize

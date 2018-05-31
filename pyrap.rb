@@ -1,29 +1,12 @@
 require 'formula'
 
 class Pyrap < Formula
-  homepage 'http://code.google.com/p/pyrap/'
-  url 'http://pyrap.googlecode.com/files/pyrap-1.1.0.tar.bz2'
-  sha256 "4ca7fa080d31de64680a78425f0ea02f36a1d8f019febf7e595234055e7e2d54"
-  head 'http://pyrap.googlecode.com/svn/trunk'
-
-  depends_on 'scons' => :build
-  depends_on 'boost-python'
-  depends_on 'casacore'
-  depends_on :python
-  depends_on 'numpy' => :python
-
-  # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
-  patch do
-    url 'https://gist.github.com/ludwigschwardt/5195760/raw/da9264e50c244b84cd92e180b207e13928f7ff93/patch1.diff'
-    sha256 'aa4ccbf03fce7a136bbeda47c625fe0e61d119a3aa1ef3315ce86ae2a0aa8fa7'
-  end
-  # Patch to ignore fortran to c library (aka libgfortran)
-  patch do
-    url 'https://gist.github.com/ludwigschwardt/5195760/raw/0bda200fb5c8f743c488077e94195c786ecb2486/patch3.diff'
-    sha256 '3ffb0226a509633eec1adcdae4f2e60c5013b6524a02ba4b506e0f6c784154d0'
-  end
+  desc 'Python bindings for casacore, a library used in radio astronomy'
+  homepage 'https://casacore.github.io/python-casacore/'
 
   stable do
+    url 'https://pyrap.googlecode.com/files/pyrap-1.1.0.tar.bz2'
+    sha256 "4ca7fa080d31de64680a78425f0ea02f36a1d8f019febf7e595234055e7e2d54"
     # Patch to disable explicit linking to system Python framework in order to support brew Python (and other non-system versions)
     patch do
       url 'https://gist.github.com/ludwigschwardt/5195760/raw/0dbf63fba7b4caed537c84eb26c42afc7db0ec23/patch5.diff'
@@ -47,6 +30,7 @@ class Pyrap < Formula
   end
 
   head do
+    url 'https://github.com/casacore/python-casacore.git'
     # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
     patch do
       url 'https://gist.github.com/ludwigschwardt/5195760/raw/c0981d0c27b3086cb7378cf4442b2754abc8a42d/patch2.diff'
@@ -79,6 +63,23 @@ class Pyrap < Formula
     end
   end
 
+  depends_on 'scons' => :build
+  depends_on 'boost-python'
+  depends_on 'casacore'
+  depends_on 'python@2'
+  depends_on 'numpy'
+
+  # Patch to support compilation on Mac OS 10.7+ (Lion and up) by ignoring sysroot
+  patch do
+    url 'https://gist.github.com/ludwigschwardt/5195760/raw/da9264e50c244b84cd92e180b207e13928f7ff93/patch1.diff'
+    sha256 'aa4ccbf03fce7a136bbeda47c625fe0e61d119a3aa1ef3315ce86ae2a0aa8fa7'
+  end
+  # Patch to ignore fortran to c library (aka libgfortran)
+  patch do
+    url 'https://gist.github.com/ludwigschwardt/5195760/raw/0bda200fb5c8f743c488077e94195c786ecb2486/patch3.diff'
+    sha256 '3ffb0226a509633eec1adcdae4f2e60c5013b6524a02ba4b506e0f6c784154d0'
+  end
+
   def install
     if build.head?
       build_cmd = 'batchbuild-trunk.py'
@@ -88,7 +89,7 @@ class Pyrap < Formula
     # Obtain information on Python installation
     python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp
     python_site_packages = lib + "#{python_xy}/site-packages"
-    system "python", "#{build_cmd}",
+    system "python", build_cmd,
            "--boost-root=#{HOMEBREW_PREFIX}", "--boost-lib=boost_python-mt",
            "--enable-hdf5", "--prefix=#{prefix}",
            "--python-prefix=#{python_site_packages}",

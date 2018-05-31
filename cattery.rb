@@ -1,9 +1,10 @@
 require 'formula'
 
 class Cattery < Formula
-  homepage 'http://www.astron.nl/meqwiki/MeqTrees'
+  desc 'MeqTrees-based frameworks for interferometer simulation and calibration'
+  homepage 'http://meqtrees.net'
   url 'https://svn.astron.nl/MeqTrees/release/Cattery/release-1.2.0'
-  head 'https://svn.astron.nl/MeqTrees/trunk/Cattery'
+  head 'https://github.com/ska-sa/meqtrees-cattery.git'
 
   def install
     # Obtain information on Python installation

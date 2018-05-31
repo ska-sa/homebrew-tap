@@ -8,12 +8,10 @@ class Libair < Formula
   depends_on "bnmin1"
   depends_on "pkg-config" => :build
 
-  def patches
-    # Patch 1: Allow the use of SWIG 2.x for Python bindings
-    # Patch 2: Fix C++ implicit instantiation error
-    # Patch 3: Fix const problem with comparison operator
-    DATA
-  end
+  # Patch 1: Allow the use of SWIG 2.x for Python bindings
+  # Patch 2: Fix C++ implicit instantiation error
+  # Patch 3: Fix const problem with comparison operator
+  patch :DATA
 
   def install
     ENV.deparallelize

@@ -1,9 +1,10 @@
 require 'formula'
 
 class Meqtrees < Formula
-  homepage 'http://www.astron.nl/meqwiki/MeqTrees'
+  desc 'A system for implementing and solving arbitrary Measurement Equations'
+  homepage 'http://meqtrees.net/'
   url 'https://svn.astron.nl/MeqTrees/release/Timba/release-1.2.1'
-  head 'https://svn.astron.nl/MeqTrees/trunk/Timba'
+  head 'https://github.com/ska-sa/meqtrees-timba.git'
 
   option 'enable-debug', 'Enable debug build of MeqTrees as well as debugging symbols'
   option 'without-symbols', 'Remove debugging symbols'
@@ -20,11 +21,9 @@ class Meqtrees < Formula
   depends_on 'fftw'
   depends_on 'blitz'
   depends_on 'qdbm'
-  depends_on 'pyqwt'
-  depends_on :python
-  depends_on 'numpy' => :python
-  depends_on 'pyfits' => :python
-  depends_on 'PIL' => :python
+  depends_on 'python@2'
+  depends_on 'numpy'
+  # Missing dependencies: pyqwt pyfits PIL
   # The following packages are strictly optional but by including them
   # it is easy to install the whole MeqTrees suite in one go
   # (and it allows testing the whole suite via Batchtest)
@@ -34,30 +33,43 @@ class Meqtrees < Formula
   depends_on 'owlcat'
   depends_on 'makems'
 
-  def patches
-    p = []
+  if not build.head?
     # Added explicit template instantiation and corrected constness (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4568292/e187cef9d60d4b89293f2d6b93ad9940ccd9c5aa/patch1.diff' if not build.head?
+    patch do
+      url 'https://gist.github.com/raw/4568292/e187cef9d60d4b89293f2d6b93ad9940ccd9c5aa/patch1.diff'
+    end
     # Use correct version of strerror_r on the Mac (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4568292/21ebb9fd3094b18c37555ef1288915036c623c03/patch2.diff' if not build.head?
+    patch do
+      url 'https://gist.github.com/raw/4568292/21ebb9fd3094b18c37555ef1288915036c623c03/patch2.diff'
+    end
     # Fixed bug in thread map index (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4568292/058d009cd7e90f9578d90494b508b96968dddd13/patch3.diff' if not build.head?
-    # Add support for Blitz++ 0.10
-    p << 'https://gist.github.com/raw/4568292/76627df1f718eceef29fa3e224d2bfee90c3ce06/patch4.diff'
+    patch do
+      url 'https://gist.github.com/raw/4568292/058d009cd7e90f9578d90494b508b96968dddd13/patch3.diff'
+    end
     # Disambiguate Mutex::Lock class (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4568292/38983609880a37d0a93d626628d31fbba76accd2/patch5.diff' if not build.head?
-    # Suppress compiler warning by using correct format specifier
-#    p << 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
+    patch do
+      url 'https://gist.github.com/raw/4568292/38983609880a37d0a93d626628d31fbba76accd2/patch5.diff'
+    end
     # Use file-based Unix sockets on the Mac as abstract sockets are Linux-only (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff' if not build.head?
-    # Provide link to Siamese and Calico packages instead of Cattery to get it included in sidebars of GUI file dialogs
-    p << 'https://gist.github.com/ludwigschwardt/4568292/raw/abd9de4a07380e296e7b5e592313c8494fae9bb1/patch8.diff'
-    return p.empty? ? nil : p
+    patch do
+      url 'https://gist.github.com/raw/4568292/c7cb2091dc7b63b55dbe6f810b5a11bd75856be5/patch7.diff'
+    end
+  end
+
+  # Add support for Blitz++ 0.10
+  patch do
+    url 'https://gist.github.com/raw/4568292/76627df1f718eceef29fa3e224d2bfee90c3ce06/patch4.diff'
+  end
+  # Suppress compiler warning by using correct format specifier
+  # 'https://gist.github.com/raw/4568292/f978679da33f843a6260d4c7a36f4c021174d32c/patch6.diff' if build.head?
+  # Provide link to Siamese and Calico packages instead of Cattery to get it included in sidebars of GUI file dialogs
+  patch do
+    url 'https://gist.github.com/ludwigschwardt/4568292/raw/abd9de4a07380e296e7b5e592313c8494fae9bb1/patch8.diff'
   end
 
   fails_with :clang do
     build 425
-    cause <<-EOS.undent
+    cause <<~EOS
       Throws 'allocation of incomplete type' error on DMI::NumArray
       EOS
   end
@@ -73,7 +85,7 @@ class Meqtrees < Formula
 
     if build.include? 'enable-debug'
       build_type = 'debug'
-    elsif build.include? 'without-symbols'
+    elsif build.without? 'symbols'
       build_type = 'release'
     else
       build_type = 'relwithdebinfo'

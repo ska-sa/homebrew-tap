@@ -8,13 +8,13 @@ class Xpra < Formula
   # We want pkg-config
   env :userpaths
 
-  depends_on :python
-  depends_on "Cython" => :python
+  depends_on 'python@2'
+  depends_on "Cython"
   # PyObjC is used for AppKit - install core first to avoid recompilation
-  depends_on "objc" => :python
+  # Missing dependencies: objc
   # PyOpenGL is only required if pygtkglext is to be used
-  depends_on "OpenGL" => :python if build.with? "pygtkglext"
-  depends_on "OpenGL_accelerate" => :python if build.with? "pygtkglext"
+  depends_on "OpenGL" if build.with? "pygtkglext"
+  depends_on "OpenGL_accelerate" if build.with? "pygtkglext"
   depends_on :x11
   depends_on "pygtk"
   depends_on "pygtkglext" => :recommended
@@ -24,11 +24,9 @@ class Xpra < Formula
   depends_on "webp"
   # extras: rencode cryptography lzo lz4
 
-  def patches
-    # 1) Use AppKit NSBeep instead of Carbon.Snd.SysBeep for system bell.
-    # 2) Fix icon directory.
-    DATA
-  end
+  # 1) Use AppKit NSBeep instead of Carbon.Snd.SysBeep for system bell.
+  # 2) Fix icon directory.
+  patch :DATA
 
   def install
     inreplace "xpra/platform/paths.py", "sys.prefix", '"#{prefix}"'

@@ -1,18 +1,17 @@
 require 'formula'
 
 class Makems < Formula
-  homepage 'http://www.astron.nl/meqwiki/BuildingMakeMs'
+  desc 'Make CASA MeasurementSets from scratch'
+  homepage 'https://github.com/ska-sa/meqtrees/wiki/BuildingMakeMs'
   url 'https://svn.astron.nl/makems/release/makems/release-1.2.0'
   head 'https://svn.astron.nl/makems/trunk/makems'
 
   depends_on 'cmake' => :build
   depends_on 'casacore'
 
-  def patches
-    # Darwin does not have /usr/include/malloc.h
-    # Darwin already defines 'union semun' in sys/sem.h
-    DATA
-  end
+  # Darwin does not have /usr/include/malloc.h
+  # Darwin already defines 'union semun' in sys/sem.h
+  patch :DATA
 
   def install
     # To get a build type besides "gnu_opt" we need to change from superenv to std env first
@@ -32,12 +31,12 @@ class Makems < Formula
     bin.install "#{doc}/mkant/mkant.py"
   end
 
-  def test
+  test do
     mktemp do
       # Create MS and convert to FITS to verify file structure
       cp_r ["#{doc}/examples/WSRT_ANTENNA", "#{doc}/examples/makems.cfg"], '.'
-      system 'makems makems.cfg'
-      system 'ms2uvfits in=test.MS_p0 out=test.fits writesyscal=F'
+      system '#{bin}/makems makems.cfg'
+      system '#{bin}/ms2uvfits in=test.MS_p0 out=test.fits writesyscal=F'
       if File.exists? 'test.fits' then
         ohai 'makems OK'
       else

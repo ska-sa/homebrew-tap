@@ -1,15 +1,17 @@
 class ObitDownloadStrategy < SubversionDownloadStrategy
   def stage
+    obit_location = "#{cached_location}/trunk/ObitSystem/Obit"
     # Bake SVN revision into ObitVersion.c before staging/exporting the Obit tarball without commit history
-    quiet_system "python", cached_location+"Obit/share/scripts/getVersion.py", cached_location+"Obit"
-    ohai "Obit version is " + File.open(cached_location+"Obit/src/ObitVersion.c") { |f| f.read[/"(\d+M*)"/][$1] }
+    quiet_system "python", "#{obit_location}/share/scripts/getVersion.py", obit_location
+    ohai "Obit version is " + File.open("#{obit_location}/src/ObitVersion.c") { |f| f.read[/"(\d+M*)"/][$1] }
     super
   end
 end
 
 class Obit < Formula
+  desc "Radio astronomy software for imaging algorithm development"
   homepage "http://www.cv.nrao.edu/~bcotton/Obit.html"
-  head "https://svn.cv.nrao.edu/svn/ObitInstall/ObitSystem", :using => ObitDownloadStrategy
+  head "https://github.com/bill-cotton/Obit/", :using => ObitDownloadStrategy
 
   # We need to find the MacTeX executables in order to build the Obit
   # user manuals and they are not in the Homebrew restricted path.
@@ -22,7 +24,6 @@ class Obit < Formula
   depends_on "pkg-config" => :build
 
   depends_on "pgplot"
-  conflicts_with "plplot", :because => "because it has a float type mismatch and configure can't disable it"
   depends_on "cfitsio"
   depends_on "glib"
   depends_on "fftw"
@@ -34,16 +35,16 @@ class Obit < Formula
   end
   depends_on "boost"
   depends_on "libair"
-  depends_on :fortran
+  depends_on "gcc"
 
-  def patches
-    # Build main Obit library as shared dylib
-    # Improve installation procedure for Python module
-    # Don't update version in install as it is done as part of staging now
-    # Add missing build dependencies to enable parallel builds
-    # Move include_dirs into Extension class in Python setup.py
-    DATA
-  end
+  conflicts_with "plplot", :because => "because it has a float type mismatch and configure can't disable it"
+
+  # Build main Obit library as shared dylib
+  # Improve installation procedure for Python module
+  # Don't update version in install as it is done as part of staging now
+  # Add missing build dependencies to enable parallel builds
+  # Move include_dirs into Extension class in Python setup.py
+  patch :DATA
 
   def install
     # Obtain information on Python and X11 installations

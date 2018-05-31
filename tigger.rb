@@ -1,29 +1,32 @@
 require 'formula'
 
 class Tigger < Formula
-  homepage 'http://www.astron.nl/meqwiki/Tigger'
+  desc 'A FITS viewer and sky model management tool (part of MeqTrees)'
+  homepage 'https://github.com/ska-sa/meqtrees/wiki/Tigger'
   url 'https://svn.astron.nl/Tigger/release/Tigger/release-1.2.2'
   head 'https://svn.astron.nl/Tigger/trunk/Tigger'
 
-  depends_on :python
-  depends_on 'pyfits' => :python
-  depends_on 'numpy' => :python
-  depends_on 'scipy' => :python
-  depends_on 'astLib' => :python
-  depends_on 'pyqwt'
+  depends_on 'python@2'
+  depends_on 'numpy'
+  depends_on 'scipy'
   depends_on 'purr'
+  # Missing dependencies: pyfits, pyqwt, astLib
 
-  def patches
-    p = []
+  if not build.head?
     # Ignore setAllowX11ColorNames attribute on non-X11 Mac platform (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4565060/3a11913eff383b188a7dc887d560140b2b2b3500/patch1.diff' if not build.head?
+    patch do
+      url 'https://gist.github.com/raw/4565060/3a11913eff383b188a7dc887d560140b2b2b3500/patch1.diff'
+    end
     # Fix imports to be absolute (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4565060/b42096bf9569b60a11f99a7432826e6235be5c4b/patch2.diff' if not build.head?
-#    p << 'https://gist.github.com/raw/4565060/2bc9f42182180401adb52b8be065d1c70d39fe37/patch3.diff' if build.head?
+    patch do
+      url 'https://gist.github.com/raw/4565060/b42096bf9569b60a11f99a7432826e6235be5c4b/patch2.diff'
+    end
     # Nuke matplotlib differently (dummy_module clashes with pkg_resources) (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4565060/95dc15b776855ed4273c79d18e1c99177ea8b41a/patch4.diff' if not build.head?
-    return p.empty? ? nil : p
+    patch do
+      url 'https://gist.github.com/raw/4565060/95dc15b776855ed4273c79d18e1c99177ea8b41a/patch4.diff'
+    end
   end
+#    p << 'https://gist.github.com/raw/4565060/2bc9f42182180401adb52b8be065d1c70d39fe37/patch3.diff' if build.head?
 
   def install
     # Obtain information on Python installation
@@ -40,7 +43,7 @@ class Tigger < Formula
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
-  def test
+  test do
     if system "python -c 'import Tigger'" then
       onoe 'Tigger FAILED'
     else

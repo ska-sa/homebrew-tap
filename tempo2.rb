@@ -1,10 +1,11 @@
 class Tempo2 < Formula
+  desc 'A pulsar timing package'
   homepage "http://www.atnf.csiro.au/research/pulsar/tempo2/"
   url "https://downloads.sourceforge.net/tempo2/tempo2-2013.9.1.tar.gz"
   sha256 "79dede8fcb4deb66789d6acffa775cfc27ed33412eb795c93aad4dbe054cd933"
 
   depends_on :x11
-  depends_on :fortran
+  depends_on "gcc"
 
   depends_on "pgplot"
   depends_on "fftw"

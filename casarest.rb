@@ -1,7 +1,8 @@
 require 'formula'
 
 class Casarest < Formula
-  homepage 'http://www.astron.nl/meqwiki/LinkingWithCasaCore'
+  desc 'The light-weight imager (lwimager) for radio astronomy'
+  homepage 'https://github.com/ska-sa/meqtrees/wiki/LinkingWithCasaCore'
   url 'https://svn.astron.nl/casarest/release/casarest/release-1.2.1'
   head 'https://svn.astron.nl/casarest/trunk/casarest'
 

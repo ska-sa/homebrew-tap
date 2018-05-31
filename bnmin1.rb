@@ -1,20 +1,18 @@
 class Bnmin1 < Formula
   desc "Bojan Nikolic's minimisation and statistical inference library"
-  homepage "http://www.mrao.cam.ac.uk/~bn204/oof/bnmin1.html"
-  url "http://www.mrao.cam.ac.uk/~bn204/soft/bnmin1-1.11.tar.bz2"
+  homepage "https://www.mrao.cam.ac.uk/~bn204/oof/bnmin1.html"
+  url "https://www.mrao.cam.ac.uk/~bn204/soft/bnmin1-1.11.tar.bz2"
   sha256 "e2367190a4d6439e122cc2d78ad8224dcd9690fbc201f36a2a87fec149a39540"
 
   depends_on "swig" => :build
   depends_on "boost"
+  depends_on "gcc"
   depends_on "gsl@1"
-  depends_on :fortran
 
-  def patches
-    # Patch 1: Allow the use of SWIG 2.x for Python bindings
-    # Patch 2: Fix naming of static library
-    # Patch 3: Make fprior_t struct public as it is referenced in public priorlist_t
-    DATA
-  end
+  # Patch 1: Allow the use of SWIG 2.x for Python bindings
+  # Patch 2: Fix naming of static library
+  # Patch 3: Make fprior_t struct public as it is referenced in public priorlist_t
+  patch :DATA
 
   def install
     ENV.deparallelize

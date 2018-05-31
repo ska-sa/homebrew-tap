@@ -1,23 +1,28 @@
 require 'formula'
 
 class Purr < Formula
-  homepage 'http://www.astron.nl/meqwiki/Purr/Introduction'
+  desc 'A GUI tool for auto-generating descriptive data processing logs'
+  homepage 'https://github.com/ska-sa/meqtrees/wiki/Purr-Introduction'
   url 'https://svn.astron.nl/Purr/release/Purr/release-1.2.0'
-  head 'https://svn.astron.nl/Purr/trunk/Purr'
+  head 'https://github.com/ska-sa/purr.git'
 
-  depends_on :python
-  depends_on 'pyfits' => :python
+  depends_on 'python@2'
   depends_on 'pyqt'
+  # Missing dependencies: pyfits
 
-  def patches
-    p = []
+  if not build.head?
     # First look for icons in meqtrees share directory (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4705954/bdcfe30b6f63a4d634f33fcfa4334ea7760cd69d/patch1.diff' if not build.head?
+    patch do
+      url 'https://gist.github.com/raw/4705954/bdcfe30b6f63a4d634f33fcfa4334ea7760cd69d/patch1.diff'
+    end
     # Provide alternatives for Linux-only 'cp -u' and 'mv -u' (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4705954/95942b16e28c387b89ff64baf986b141c037d422/patch2.diff' if not build.head?
+    patch do
+      url 'https://gist.github.com/raw/4705954/95942b16e28c387b89ff64baf986b141c037d422/patch2.diff'
+    end
     # Escape spaces in paths sent to pychart to produce histograms (fixed in HEAD)
-    p << 'https://gist.github.com/raw/4705954/fef3b6a3386a3b8c8ec512099fc14b2bcb680e47/patch3.diff' if not build.head?
-    return p.empty? ? nil : p
+    patch do
+      url 'https://gist.github.com/raw/4705954/fef3b6a3386a3b8c8ec512099fc14b2bcb680e47/patch3.diff'
+    end
   end
 
   def install
@@ -31,7 +36,7 @@ class Purr < Formula
     cp_r 'icons', "#{share}/meqtrees/"
   end
 
-  def test
+  test do
     if system "python -c 'import Purr'" then
       onoe 'Purr FAILED'
     else

@@ -1,10 +1,11 @@
 require 'formula'
 
 class Leo < Formula
+  desc 'A full-featured outliner, IDE and data manager written in Python'
   homepage 'http://leoeditor.com/'
-  url 'http://sourceforge.net/projects/leo/files/Leo/4.10%20final/Leo-4.10-final.zip'
+  url 'https://downloads.sourceforge.net/projects/leo/files/Leo/4.10%20final/Leo-4.10-final.zip'
   sha256 '3c27d28e8127094aee9a9dba3d4b5093275e5f35af1b2d3ea1e8b76e5a9f7c7b'
-  head 'https://code.launchpad.net/leo-editor', :using => :bzr
+  head 'https://github.com/leo-editor/leo-editor.git'
 
   depends_on 'pyqt'
   depends_on 'enchant' => :recommended

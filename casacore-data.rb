@@ -1,7 +1,8 @@
 require 'formula'
 
 class CasacoreData < Formula
-  homepage 'http://code.google.com/p/casacore/'
+  desc 'Ephemerides and geodetic data for casacore measures (via ATNF)'
+  homepage 'https://github.com/casacore/casacore'
   head 'ftp://ftp.atnf.csiro.au/pub/software/measures_data/measures_data.tar.bz2'
 
   option 'use-casapy', 'Use Mac CASA.App (aka casapy) data directory if found'
