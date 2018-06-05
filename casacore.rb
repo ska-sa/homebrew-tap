@@ -1,14 +1,9 @@
 class Casacore < Formula
   desc "Suite of C++ libraries for radio astronomy data processing"
   homepage "https://github.com/casacore/casacore"
-  url "https://github.com/casacore/casacore/archive/v2.4.0.tar.gz"
-  sha256 "9ae749d604d037a5a7b13b9eb759dfb8e22a405dcdb61f67c0916d3fe78db39c"
+  url "https://github.com/casacore/casacore/archive/v2.4.1.tar.gz"
+  sha256 "58eccc875053b2c6fe44fe53b6463030ef169597ec29926936f18d27b5087d63"
   head "https://github.com/casacore/casacore.git"
-
-  bottle do
-    root_url "https://bintray.com/artifact/download/casacore/homebrew-bottles/"
-    sha256 "d3addee413010f7e2e5827c07c1c645c64b41b3abcddf56ce45924283a36d2fa" => :el_capitan
-  end
 
   option "without-cxx11", "Build without C++11 support"
 
