@@ -15,15 +15,24 @@ class Casacore < Formula
   depends_on "cmake" => :build
   depends_on "cfitsio"
   depends_on "brewsci/science/wcslib"
-  depends_on "python" => :recommended
+  depends_on "python@2" => :recommended
+  depends_on "python" => :optional
   depends_on "fftw"
   depends_on "hdf5"
   depends_on "readline"
   depends_on "casacore-data"
   depends_on "gcc"
 
+  if build.with?("python@2")
+    # Boost 1.67 changed the Python library name and cmake 3.11.3 doesn't like it
+    # Remove the version pin once cmake catches up
+    # See https://gitlab.kitware.com/cmake/cmake/merge_requests/1865
+    depends_on "boost-python@1.59"
+    depends_on "numpy"
+  end
+
   if build.with?("python")
-    depends_on "boost-python"
+    depends_on "boost-python@1.59" => "with-python"
     depends_on "numpy"
   end
 
@@ -37,18 +46,22 @@ class Casacore < Formula
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCXX11=False" if build.without? "cxx11"
 
-    if build.with? "python"
+    if build.with? "python@2"
       cmake_args << "-DBUILD_PYTHON=ON"
       cmake_args << "-DPYTHON2_EXECUTABLE=/usr/local/bin/python2"
       cmake_args << "-DPYTHON2_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib"
+      # XXX Remove once cmake handles Boost 1.67
+      cmake_args << "-DBOOST_ROOT=/usr/local/opt/boost@1.59;/usr/local/opt/boost-python@1.59"
     else
       cmake_args << "-DBUILD_PYTHON=OFF"
     end
 
-    if build.with? "python3"
+    if build.with? "python"
       cmake_args << "-DBUILD_PYTHON3=ON"
       cmake_args << "-DPYTHON3_EXECUTABLE=/usr/local/bin/python3"
-      cmake_args << "-DPYTHON3_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.5/lib/libpython3.5.dylib"
+      cmake_args << "-DPYTHON3_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6.dylib"
+      # XXX Remove once cmake handles Boost 1.67
+      cmake_args << "-DBOOST_ROOT=/usr/local/opt/boost@1.59;/usr/local/opt/boost-python@1.59"
     end
 
     cmake_args << "-DUSE_FFTW3=ON" << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
