@@ -1,10 +1,8 @@
-require 'formula'
-
 class Sketch < Formula
   desc 'A 3D scene description translator for producing line drawings in TeX'
-  homepage 'http://www.frontiernet.net/~eugene.ressler/'
-  url 'http://www.frontiernet.net/~eugene.ressler/sketch-0.3.7.tgz'
-  sha256 '09ddd286cba6ab4d4cba0ded986231f7b0f9cff4cb0c35d121ec1d65af4a14fe'
+  homepage 'http://sketch4latex.sourceforge.net/'
+  url 'http://sketch4latex.sourceforge.net/sketch-0.3.7.tgz'
+  sha256 '12962ad5fe5a0f7c9fc6d84bd4d09b879bbf604975c839405f1613be657ba804'
 
   # Building the documentation requires access to GhostScript
   env :userpaths
