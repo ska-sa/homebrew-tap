@@ -1,5 +1,3 @@
-require 'formula'
-
 class Tigger < Formula
   desc 'A FITS viewer and sky model management tool (part of MeqTrees)'
   homepage 'https://github.com/ska-sa/meqtrees/wiki/Tigger'

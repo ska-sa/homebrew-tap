@@ -1,5 +1,3 @@
-require 'formula'
-
 class Owlcat < Formula
   desc 'Miscellaneous scripts for manipulating radio interferometry data'
   homepage 'http://www.astron.nl/meqwiki-data/users/oms/Owlcat-plotms-tutorial.purrlog/'

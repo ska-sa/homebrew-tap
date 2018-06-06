@@ -1,5 +1,3 @@
-require 'formula'
-
 class Leo < Formula
   desc 'A full-featured outliner, IDE and data manager written in Python'
   homepage 'http://leoeditor.com/'

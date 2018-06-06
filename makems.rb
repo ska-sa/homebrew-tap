@@ -1,5 +1,3 @@
-require 'formula'
-
 class Makems < Formula
   desc 'Make CASA MeasurementSets from scratch'
   homepage 'https://github.com/ska-sa/meqtrees/wiki/BuildingMakeMs'

@@ -1,5 +1,3 @@
-require 'formula'
-
 class Pyrap < Formula
   desc 'Python bindings for casacore, a library used in radio astronomy'
   homepage 'https://casacore.github.io/python-casacore/'

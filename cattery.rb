@@ -1,5 +1,3 @@
-require 'formula'
-
 class Cattery < Formula
   desc 'MeqTrees-based frameworks for interferometer simulation and calibration'
   homepage 'http://meqtrees.net'

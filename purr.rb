@@ -1,5 +1,3 @@
-require 'formula'
-
 class Purr < Formula
   desc 'A GUI tool for auto-generating descriptive data processing logs'
   homepage 'https://github.com/ska-sa/meqtrees/wiki/Purr-Introduction'

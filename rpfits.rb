@@ -1,5 +1,3 @@
-require 'formula'
-
 class Rpfits < Formula
   desc 'Library to access ATCA visibility data in RPFITS format'
   homepage 'http://www.atnf.csiro.au/computing/software/rpfits.html'

@@ -1,5 +1,3 @@
-require 'formula'
-
 class CasacoreData < Formula
   desc 'Ephemerides and geodetic data for casacore measures (via ATNF)'
   homepage 'https://github.com/casacore/casacore'

@@ -1,5 +1,3 @@
-require 'formula'
-
 class Casarest < Formula
   desc 'The light-weight imager (lwimager) for radio astronomy'
   homepage 'https://github.com/ska-sa/meqtrees/wiki/LinkingWithCasaCore'

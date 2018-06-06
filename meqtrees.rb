@@ -1,5 +1,3 @@
-require 'formula'
-
 class Meqtrees < Formula
   desc 'A system for implementing and solving arbitrary Measurement Equations'
   homepage 'http://meqtrees.net/'

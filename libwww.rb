@@ -1,5 +1,3 @@
-require 'formula'
-
 class Libwww < Formula
   desc 'A highly modular, general-purpose client side Web API written in C'
   homepage 'http://www.w3.org/Library/'
