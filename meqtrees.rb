@@ -65,13 +65,6 @@ class Meqtrees < Formula
     url 'https://gist.github.com/ludwigschwardt/4568292/raw/abd9de4a07380e296e7b5e592313c8494fae9bb1/patch8.diff'
   end
 
-  fails_with :clang do
-    build 425
-    cause <<~EOS
-      Throws 'allocation of incomplete type' error on DMI::NumArray
-      EOS
-  end
-
   def install
     # Obtain information on Python installation
     python_xy = "python" + %x(python -c 'import sys;print(sys.version[:3])').chomp

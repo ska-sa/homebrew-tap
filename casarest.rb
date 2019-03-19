@@ -12,13 +12,6 @@ class Casarest < Formula
   depends_on 'hdf5'
   depends_on 'gcc'
 
-  fails_with :clang do
-    build 503
-    cause <<~EOS
-      Code does not follow C++ standard strictly but does whatever GCC allows
-      EOS
-  end
-
   # def patches
   #   p = []
   #   # Fixes disallowed size_t vs int* comparison, which used to be specially
