@@ -26,8 +26,13 @@ class Casacore < Formula
     depends_on "numpy"
   end
 
-  # casacore/casacore#846: Boost Python upstream fix (remove on next release)
-  patch :DATA
+  stable do
+    patch do
+      # casacore/casacore#846: Boost Python upstream fix (remove on next release)
+      url "https://gist.githubusercontent.com/ludwigschwardt/bfbe9dd2538abbbf22552fde40bec935/raw/81ecf300fd6f1605a8e30c435f51e7d93807a2b6/casacore-patch-boost-pythonxy.patch"
+      sha256 ""
+    end
+  end
 
   def install
     # To get a build type besides "release" we need to change from superenv to std env first
@@ -65,50 +70,3 @@ class Casacore < Formula
     system bin/"findmeastable", "DE405"
   end
 end
-
-__END__
-diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
-index f8ece2584..3c7b621db 100644
---- a/python/CMakeLists.txt
-+++ b/python/CMakeLists.txt
-@@ -22,7 +22,15 @@ set(Python_FIND_VERSION 2)
- set(PythonInterp_FIND_VERSION_MAJOR 2)
- find_package(Python REQUIRED)
- if (PYTHONINTERP_FOUND)
--    find_package(Boost REQUIRED COMPONENTS python)
-+    find_package(Boost REQUIRED)
-+    if (${Boost_MAJOR_VERSION} STREQUAL 1 AND ${Boost_MINOR_VERSION} STRGREATER 66)
-+        # Boost>1.67 Python components require a Python version suffix
-+        set(BOOST_PYTHON_SEARCH_VERSION python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-+    else ()
-+        set(BOOST_PYTHON_SEARCH_VERSION python)
-+    endif ()
-+    find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_SEARCH_VERSION})
-+
-     find_package (NUMPY REQUIRED)
- 
-     # copy the variables to their final destination
-diff --git a/python3/CMakeLists.txt b/python3/CMakeLists.txt
-index 43003659b..ac7fd6924 100644
---- a/python3/CMakeLists.txt
-+++ b/python3/CMakeLists.txt
-@@ -23,12 +23,14 @@ set(Python_ADDITIONAL_VERSIONS 3.5 3.4)
- find_package(Python REQUIRED)
- 
- if (PYTHONINTERP_FOUND)
--    if (APPLE)
--        find_package(Boost REQUIRED COMPONENTS python3)
-+    find_package(Boost REQUIRED)
-+    if (${Boost_MAJOR_VERSION} STREQUAL 1 AND ${Boost_MINOR_VERSION} STRGREATER 66)
-+        # Boost>1.67 Python components require a Python version suffix
-+        set(BOOST_PYTHON_SEARCH_VERSION python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-     else ()
--        # NOTE: the name of the python3 version of boost is probably Debian/Ubuntu specific
--        find_package(Boost REQUIRED COMPONENTS python-py${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
--    endif (APPLE)
-+        set(BOOST_PYTHON_SEARCH_VERSION python${PYTHON_VERSION_MAJOR})
-+    endif ()
-+    find_package(Boost REQUIRED COMPONENTS ${BOOST_PYTHON_SEARCH_VERSION})
- 
-     find_package (NUMPY REQUIRED)
- 
