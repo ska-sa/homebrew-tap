@@ -30,14 +30,14 @@ class Casacore < Formula
     patch do
       # casacore/casacore#846: Boost Python upstream fix (remove on next release)
       url "https://gist.githubusercontent.com/ludwigschwardt/bfbe9dd2538abbbf22552fde40bec935/raw/81ecf300fd6f1605a8e30c435f51e7d93807a2b6/casacore-patch-boost-pythonxy.patch"
-      sha256 ""
+      sha256 "f0a05f9c1d990d5adf5fbb54b8ed662a7072b79f54d11a4f1c02589cb1e8ad51"
     end
   end
 
   patch do
     # Use FindPython2 and FindPython3 modules introduced in cmake 3.12
     url "https://gist.githubusercontent.com/ludwigschwardt/0bfaef7b2c6832fb018332742e14924e/raw/5309939f68b8a07e458c5b599c06ec8f97990da5/casacore-cmake-findpython.patch"
-    sha256 ""
+    sha256 "a4eefefdba3d7f9829c197fd88de502e8a1c4379282aa3200fcedfa7f42b0e6a"
   end
 
   def install
