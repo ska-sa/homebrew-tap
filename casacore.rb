@@ -50,15 +50,9 @@ class Casacore < Formula
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'"
 
-    if build.with? "python@2"
-      cmake_args << "-DBUILD_PYTHON=ON"
-    else
-      cmake_args << "-DBUILD_PYTHON=OFF"
-    end
-
-    if build.with? "python"
-      cmake_args << "-DBUILD_PYTHON3=ON"
-    end
+    cmake_args << "-DBUILD_PYTHON=ON" if build.with? "python@2"
+    cmake_args << "-DBUILD_PYTHON=OFF" if build.without? "python@2"
+    cmake_args << "-DBUILD_PYTHON3=ON" if build.with? "python"
 
     cmake_args << "-DUSE_FFTW3=ON" << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << "-DUSE_HDF5=ON" << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
