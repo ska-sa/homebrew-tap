@@ -5,18 +5,16 @@ class Casacore < Formula
   sha256 "6f0e68fd77b5c96299f7583a03a53a90980ec347bff9dfb4c0abb0e2933e6bcb"
   head "https://github.com/casacore/casacore.git"
 
-  option "without-cxx11", "Build without C++11 support"
-
   depends_on "cmake" => :build
   depends_on "cfitsio"
-  depends_on "brewsci/science/wcslib"
+  depends_on "wcslib"
   depends_on "python@2" => :optional
   depends_on "python" => :recommended
   depends_on "fftw"
   depends_on "hdf5"
   depends_on "readline"
   depends_on "casacore-data"
-  #depends_on "gcc"
+  depends_on "gcc"  # for gfortran
 
   if build.with?("python@2")
     depends_on "boost-python"
@@ -24,7 +22,7 @@ class Casacore < Formula
   end
 
   if build.with?("python")
-    depends_on "boost-python" => "with-python"
+    depends_on "boost-python3" => "with-python"
     depends_on "numpy"
   end
 
@@ -39,7 +37,7 @@ class Casacore < Formula
     cmake_args = std_cmake_args
     cmake_args.delete "-DCMAKE_BUILD_TYPE=None"
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
-    cmake_args << "-DCXX11=False" if build.without? "cxx11"
+    cmake_args << "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'"
 
     if build.with? "python@2"
       cmake_args << "-DBUILD_PYTHON=ON"
