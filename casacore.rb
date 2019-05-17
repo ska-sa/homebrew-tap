@@ -34,6 +34,12 @@ class Casacore < Formula
     end
   end
 
+  patch do
+    # Use FindPython2 and FindPython3 modules introduced in cmake 3.12
+    url "https://gist.githubusercontent.com/ludwigschwardt/0bfaef7b2c6832fb018332742e14924e/raw/5309939f68b8a07e458c5b599c06ec8f97990da5/casacore-cmake-findpython.patch"
+    sha256 ""
+  end
+
   def install
     # To get a build type besides "release" we need to change from superenv to std env first
     build_type = "release"
@@ -46,16 +52,12 @@ class Casacore < Formula
 
     if build.with? "python@2"
       cmake_args << "-DBUILD_PYTHON=ON"
-      cmake_args << "-DPYTHON2_EXECUTABLE=/usr/local/bin/python2"
-      cmake_args << "-DPYTHON2_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib"
     else
       cmake_args << "-DBUILD_PYTHON=OFF"
     end
 
     if build.with? "python"
       cmake_args << "-DBUILD_PYTHON3=ON"
-      cmake_args << "-DPYTHON3_EXECUTABLE=/usr/local/bin/python3"
-      cmake_args << "-DPYTHON3_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.7/lib/libpython3.7.dylib"
     end
 
     cmake_args << "-DUSE_FFTW3=ON" << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
