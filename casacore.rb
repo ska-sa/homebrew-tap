@@ -22,7 +22,7 @@ class Casacore < Formula
   end
 
   if build.with?("python")
-    depends_on "boost-python3" => "with-python"
+    depends_on "boost-python3"
     depends_on "numpy"
   end
 
