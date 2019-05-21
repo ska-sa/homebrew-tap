@@ -8,22 +8,17 @@ class Casacore < Formula
   depends_on "cmake" => :build
   depends_on "cfitsio"
   depends_on "wcslib"
-  depends_on "python@2" => :optional
-  depends_on "python" => :recommended
   depends_on "fftw"
   depends_on "hdf5"
   depends_on "readline"
-  depends_on "casacore-data"
   depends_on "gcc"  # for gfortran
-
-  if build.with?("python@2")
-    depends_on "boost-python"
-    depends_on "numpy"
-  end
+  depends_on "python" => :recommended
+  depends_on "boost-python"
+  depends_on "numpy"
+  depends_on "casacore-data"
 
   if build.with?("python")
     depends_on "boost-python3"
-    depends_on "numpy"
   end
 
   stable do
@@ -49,11 +44,8 @@ class Casacore < Formula
     cmake_args.delete "-DCMAKE_BUILD_TYPE=None"
     cmake_args << "-DCMAKE_BUILD_TYPE=#{build_type}"
     cmake_args << "-DCMAKE_SHARED_LINKER_FLAGS='-undefined dynamic_lookup'"
-
-    cmake_args << "-DBUILD_PYTHON=ON" if build.with? "python@2"
-    cmake_args << "-DBUILD_PYTHON=OFF" if build.without? "python@2"
+    cmake_args << "-DBUILD_PYTHON=ON"
     cmake_args << "-DBUILD_PYTHON3=ON" if build.with? "python"
-
     cmake_args << "-DUSE_FFTW3=ON" << "-DFFTW3_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << "-DUSE_HDF5=ON" << "-DHDF5_ROOT_DIR=#{HOMEBREW_PREFIX}"
     cmake_args << "-DUSE_THREADS=ON" << "-DDATA_DIR=#{HOMEBREW_PREFIX}/share/casacore/data"
