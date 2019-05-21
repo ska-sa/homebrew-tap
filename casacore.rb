@@ -1,8 +1,8 @@
 class Casacore < Formula
   desc "Suite of C++ libraries for radio astronomy data processing"
   homepage "https://github.com/casacore/casacore"
-  url "https://github.com/casacore/casacore/archive/v3.0.0.tar.gz"
-  sha256 "6f0e68fd77b5c96299f7583a03a53a90980ec347bff9dfb4c0abb0e2933e6bcb"
+  url "https://github.com/casacore/casacore/archive/v3.1.0.tar.gz"
+  sha256 "a6adf2d77ad0d6f32995b1e297fd88d31ded9c3e0bb8f28966d7b35a969f7897"
   head "https://github.com/casacore/casacore.git"
 
   depends_on "cmake" => :build
