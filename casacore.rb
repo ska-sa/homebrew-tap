@@ -1,9 +1,9 @@
 class Casacore < Formula
   desc "Suite of C++ libraries for radio astronomy data processing"
   homepage "https://github.com/casacore/casacore"
-  url "https://github.com/casacore/casacore/archive/v3.1.0.tar.gz"
-  sha256 "a6adf2d77ad0d6f32995b1e297fd88d31ded9c3e0bb8f28966d7b35a969f7897"
-  head "https://github.com/casacore/casacore.git", :branch => "improve-cmake-findpython"
+  url "https://github.com/casacore/casacore/archive/v3.1.1.tar.gz"
+  sha256 "85d2b17d856592fb206b17e0a344a29330650a4269c80b87f8abb3eaf3dadad4"
+  head "https://github.com/casacore/casacore.git"
 
   depends_on "cmake" => :build
   depends_on "cfitsio"
@@ -19,15 +19,6 @@ class Casacore < Formula
 
   if build.with?("python")
     depends_on "boost-python3"
-  end
-
-  stable do
-    patch do
-      # casacore/casacore#846: Boost Python upstream fix
-      # Use FindPython2 and FindPython3 modules introduced in cmake 3.12
-      url "https://gist.githubusercontent.com/ludwigschwardt/f22e09d458aebd84c59de3013d0671ec/raw/6105f7497548a74dbe24285884cfda6127ca5526/casacore-improve-cmake-findpython-3.1.0.patch"
-      sha256 "ecd3526240ee31896afee31f1c2d8e6fb749bca9c2eeb4e578d2f3dcd217c12c"
-    end
   end
 
   def install
