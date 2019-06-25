@@ -1,7 +1,15 @@
+class ZtarDownloadStrategy < CurlDownloadStrategy
+  def stage
+    UnpackStrategy::Tar.new(cached_location)
+                       .extract(basename: basename,
+                                verbose:  ARGV.verbose? && !shutup)
+  end
+end
+
 class CasacoreData < Formula
-  desc 'Ephemerides and geodetic data for casacore measures (via ATNF)'
+  desc 'Ephemerides and geodetic data for casacore measures (via Astron)'
   homepage 'https://github.com/casacore/casacore'
-  head 'ftp://ftp.atnf.csiro.au/pub/software/measures_data/measures_data.tar.bz2'
+  head 'ftp://ftp.astron.nl/outgoing/Measures/WSRT_Measures.ztar', :using => ZtarDownloadStrategy
 
   option 'use-casapy', 'Use Mac CASA.App (aka casapy) data directory if found'
 
@@ -21,7 +29,7 @@ class CasacoreData < Formula
     if File.symlink? "#{share}/casacore/data"
       "Linked to CASA data directory #{casapy_data}"
     else
-      "Installed latest ATNF measures_data tarball"
+      "Installed latest Astron WSRT_Measures tarball"
     end
   end
 end
