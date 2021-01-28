@@ -22,7 +22,12 @@ class Psrchive < Formula
     patch :DATA
   end
 
-  depends_on :x11
+  option "with-x11", "Experimental: build with x11 support"
+  
+  if build.with? "x11"
+    depends_on "libx11" => :recommended
+  end
+  
   depends_on "gcc"
 
   depends_on "pgplot"
