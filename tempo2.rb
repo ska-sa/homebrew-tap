@@ -4,7 +4,7 @@ class Tempo2 < Formula
   url "https://downloads.sourceforge.net/tempo2/tempo2-2013.9.1.tar.gz"
   sha256 "79dede8fcb4deb66789d6acffa775cfc27ed33412eb795c93aad4dbe054cd933"
 
-  depends_on :x11
+  depends_on "libx11" => :recommended
   depends_on "gcc"
 
   depends_on "pgplot"

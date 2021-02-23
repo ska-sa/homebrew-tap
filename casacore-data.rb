@@ -1,35 +1,47 @@
 class ZtarDownloadStrategy < CurlDownloadStrategy
-  def stage
-    UnpackStrategy::Tar.new(cached_location)
-                       .extract(basename: basename,
-                                verbose:  ARGV.verbose? && !shutup)
+  def stage(&block)
+    UnpackStrategy::Tar.new(cached_location).extract(basename: basename, verbose: verbose?)
+    chdir(&block)
   end
 end
 
 class CasacoreData < Formula
-  desc 'Ephemerides and geodetic data for casacore measures (via Astron)'
-  homepage 'https://github.com/casacore/casacore'
-  head 'ftp://ftp.astron.nl/outgoing/Measures/WSRT_Measures.ztar', :using => ZtarDownloadStrategy
+  desc "Ephemerides and geodetic data for casacore measures (via Astron)"
+  homepage "https://github.com/casacore/casacore"
+  head "ftp://ftp.astron.nl/outgoing/Measures/WSRT_Measures.ztar", :using => ZtarDownloadStrategy
 
-  option 'use-casapy', 'Use Mac CASA.App (aka casapy) data directory if found'
+  deprecated_option "use-casapy" => "with-casapy"
+  option "with-casapy", "Use Mac CASA.App (aka casapy) data directory if found"
 
-  def casapy_data; '/Applications/CASA.app/Contents/data'; end
+  APP_DIR = Pathname.new "/Applications"
+  CASAPY_APP_NAME = "CASA.app"
+  CASAPY_APP_DIR = APP_DIR / CASAPY_APP_NAME
+  CASAPY_DATA = CASAPY_APP_DIR / "Contents/data"
 
   def install
-    if (build.include? 'use-casapy') and (File.exists? casapy_data+'/ephemerides')
-      mkdir_p "#{share}/casacore"
-      ln_s "#{casapy_data}", "#{share}/casacore/data"
+    if build.with? "casapy"
+      if !Dir.exists? CASAPY_APP_DIR
+        odie "--with-casapy was specified, but #{CASAPY_APP_NAME} was not found in #{APP_DIR}"
+      elsif !Dir.exists? CASAPY_DATA
+        odie "--with-casapy was specified, but data directory not found at #{CASAPY_DATA}"
+      end
+      prefix.install_symlink CASAPY_DATA
     else
-      mkdir_p "#{share}/casacore/data"
-      cp_r Dir['*'], "#{share}/casacore/data/"
+      (prefix / CASAPY_DATA.basename).install Dir["*"]
     end
   end
 
+  test do
+    Dir.exists? (prefix / CASAPY_DATA.basename / "ephemerides")
+    Dir.exists? (prefix / CASAPY_DATA.basename / "geodetic")
+  end
+
   def caveats
-    if File.symlink? "#{share}/casacore/data"
-      "Linked to CASA data directory #{casapy_data}"
+    data_dir = prefix / CASAPY_DATA.basename
+    if File.symlink? data_dir
+      "Linked to CASA data directory (#{CASAPY_DATA}) from #{data_dir}"
     else
-      "Installed latest Astron WSRT_Measures tarball"
+      "Installed latest Astron WSRT_Measures tarball to #{data_dir}"
     end
   end
 end
