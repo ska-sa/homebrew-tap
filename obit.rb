@@ -27,7 +27,7 @@ class Obit < Formula
   depends_on "cfitsio"
   depends_on "glib"
   depends_on "fftw"
-  depends_on "gsl@1"
+  depends_on "gsl"
   depends_on "openmotif"
   depends_on "xmlrpc-c"
   if MacOS.version == :el_capitan
